@@ -1,0 +1,28 @@
+
+<!-- Summary stuff here -->
+<script type="text/javascript">
+	(function()
+	{
+		//basic html5 shim just for the elements we're using
+		for(var tags = ['nav','details','summary'], i = 0; i < tags.length; i ++)
+		{
+			document.createElement(tags[i]);
+		}
+	})();
+	</script>
+
+	<link rel="stylesheet" href="demo.css" type="text/css" media="screen, projection, print, handheld" />
+
+    <!-- MiniPreview stuff here -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+    <link href="https://web.stanford.edu/~ksb/phil/jquery.minipreview.css" rel="stylesheet">
+    <script src="https://web.stanford.edu/~ksb/phil/jquery.minipreview.js"></script>
+    <script>
+        $(function() {
+          $('a').miniPreview({ prefetch: 'parenthover' }); // ALL links
+		  // none, parenthover, or pageload
+          //$('#p4 a').miniPreview({ prefetch: 'none' });
+        });
+    </script>
+</head>
