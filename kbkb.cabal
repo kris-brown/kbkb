@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8dd08d8b1e39caa36ea82eb443ea7b4ed43b5fc51842051a6776fde7458d39cc
+-- hash: 6aeab8ba8b005ef7dc434641b7fb0f6ae2c96f83939fc429dc597b9eabddeeb7
 
 name:           kbkb
 version:        0.1.0.0
@@ -52,28 +52,6 @@ executable kbkb
       Paths_kbkb
   hs-source-dirs:
       app
-  default-extensions: OverloadedStrings DeriveGeneric LambdaCase QuasiQuotes
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      base >=4.7 && <5
-    , containers
-    , directory
-    , html-conduit
-    , kbkb
-    , process
-    , raw-strings-qq
-    , regex-compat
-    , text
-    , xml-conduit
-  default-language: Haskell2010
-
-test-suite kbkb-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_kbkb
-  hs-source-dirs:
-      test
   default-extensions: OverloadedStrings DeriveGeneric LambdaCase QuasiQuotes
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
