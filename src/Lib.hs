@@ -179,7 +179,7 @@ sectionToHTMLrec mkPdf parent s  = do
     system cpcmd >> pure ())
 
   -- Modify html code
-  fixHtml html
+  fixHtml html Nothing
 
   -- Recursively call sub-sections
   when (isSect s) (sequence_ $ sectionToHTMLrec mkPdf (Just s) <$> sbody s)

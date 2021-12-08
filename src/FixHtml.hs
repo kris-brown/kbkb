@@ -1,7 +1,7 @@
 module FixHtml (fixHtml) where
 
 import Text.XML (Document(..), parseText_, readFile, writeFile,
-                 def, Element(Element, elementName, elementNodes),
+                 def, Element(Element, elementName, elementAttributes, elementNodes),
                  Node(NodeElement, NodeContent),
                  Name(nameLocalName) )
 import Prelude hiding (readFile, writeFile, lookup, null, concat)
@@ -10,7 +10,7 @@ import Debug.Trace (trace)
 import Data.Text (concat, pack, unpack, Text, split, isPrefixOf,
                   replace, intercalate, strip, null)
 import Data.Map ((!), lookup, insert, member)
-import Data.Maybe (isJust, fromJust)
+import Data.Maybe (isJust, fromJust, fromMaybe)
 import Data.Char (isDigit)
 import qualified Data.Text.Internal.Lazy as L
 import qualified Data.Text.Lazy as LZ
@@ -54,21 +54,6 @@ fixTOC (NodeElement (Element e1 e2 e3)) = NodeElement $ if' (member "href" e2 &&
                             _ -> Nothing
           [s1, s2] = fromJust prts
 fixTOC x = x
---   fromJust $
---   do e@(Element e1 e2 _) <- ne n
---      e'@(Element e1' e2' _) <- ne $ head $ noSpaceNodes e
---      let fixed = fixTOCelem False <$> noSpaceNodes e'
---      return $ NodeElement $ Element e1 e2 [
---               NodeElement $ Element e1' e2' fixed]
-
--- -- If flag is True, then we use the first half before the '|' to change the
--- -- hyperlink, otherwise we keep it the same (this is the option we use in TOC)
--- fixTOCelem :: Bool -> Node -> Node
--- fixTOCelem b (NodeElement (Element f1 f2 [NodeElement (Element f1' f2' [
---   NodeContent s])])) = NodeElement (Element f1 f2 [NodeElement (
---     Element f1' (if' b (insert "href" s1 f2') f2') [NodeContent s2])])
---   where [s1, s2] = split (=='|') s
--- fixTOCelem _ x = error (show x)
 
 
 -- We need to make sections collapsible as well as fix+preview links.
@@ -77,8 +62,8 @@ fixTOC x = x
 fixBodyDetail :: [Node] -> [Node]
 fixBodyDetail [] = []
 fixBodyDetail [x] = error $ "UNEXPECTED " <> show x
-fixBodyDetail (x:xs) = NodeElement . empdet <$> ps
-  where ps = hpartition (x:xs)
+fixBodyDetail (x:xs) = (NodeElement . empdet <$> ps) ++ xtra
+  where (ps, xtra) = hpartition (x:xs)
         empdet [] = error "empdet on empty"
         empdet (z:zs) = case det z of
           Element e1 e2 [e3,e4,e5,NodeElement (Element e6 e7 [])] ->
@@ -112,17 +97,16 @@ reps = [("img src=\"", "img src=\""<>root<>"img/"),
         ("&#39;Lucida Console&#39;","'Lucida Console'"),
         ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>", "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
 
-
-fixHtml :: FilePath ->  IO ()
-fixHtml fp =
+ex = fixHtml "site/doc/phil/PhilSituations0.html" (Just "res.html")
+fixHtml :: FilePath -> Maybe FilePath -> IO ()
+fixHtml fp tgt =
   do copyFile fp $ tmp 0
      d <- readFile def fp
      writeFile def (tmp 1) (procc d)
      txt <- P.readFile (tmp 1)
      let repmod = foldl (\h (n,r) -> replace n r h) (pack txt) reps
-     length txt `seq` P.writeFile fp $ unpack repmod
+     length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
   where tmp i = take (length fp - 5) fp <> show i <> ".html"
-ex = fixHtml "philprobs.html"
 
 -- Make an EMPTY summary element from a header element
 det :: Node ->Element
@@ -137,13 +121,21 @@ det i@(NodeElement (Element _ a [NodeContent b])) = documentRoot $ parseText_ de
 det _ = undefined
 
 -- Group content under a single header. Assumes the first node is a header.
-hpartition :: [Node] -> [[Node]]
-hpartition (n:tl) = reverse $ foldl f [[n]] tl
-  where f (h:t) nextNode = if' (lev nextNode == toplev)
-                               ([nextNode]:h:t) ((h++[nextNode]):t)
+-- Trailing content (footnotes/bibliography) stored in a separate list
+hpartition :: [Node] -> ([[Node]], [Node])
+hpartition (n:tl) = (reverse foldres1, reverse foldres2)
+  where f ((h:t), xtra) nextNode = if' ((not $ P.null xtra) || isBib nextNode)
+                                       (h:t, nextNode:xtra)
+                                       (if' (lev nextNode == toplev)
+                                            ([nextNode]:h:t, xtra)
+                                            ((h++[nextNode]):t, xtra))
         f _ _ = undefined
+        (foldres1, foldres2) = foldl f ([[n]], []) tl
         toplev = lev n
         lev x = nameLocalName . elementName <$> ne x
+        isBib x = maybe False (\e -> lookup "id" e == Just "refs"
+                                  || lookup "role" e == Just "doc-endnotes")
+                              (elementAttributes <$> ne x)
 hpartition _ = undefined
 
 -- Filter all pure whitespace node contents
@@ -205,3 +197,20 @@ box lnk = NodeElement $ documentRoot $ parseText_ def $ LZ.concat [
 --       NodeElement (Element e1 e2 $ concatMap addPreviews e3))]
 -- addPreviews x@(NodeContent _) = [x]
 -- addPreviews _ = undefined
+
+
+--   fromJust $
+--   do e@(Element e1 e2 _) <- ne n
+--      e'@(Element e1' e2' _) <- ne $ head $ noSpaceNodes e
+--      let fixed = fixTOCelem False <$> noSpaceNodes e'
+--      return $ NodeElement $ Element e1 e2 [
+--               NodeElement $ Element e1' e2' fixed]
+
+-- -- If flag is True, then we use the first half before the '|' to change the
+-- -- hyperlink, otherwise we keep it the same (this is the option we use in TOC)
+-- fixTOCelem :: Bool -> Node -> Node
+-- fixTOCelem b (NodeElement (Element f1 f2 [NodeElement (Element f1' f2' [
+--   NodeContent s])])) = NodeElement (Element f1 f2 [NodeElement (
+--     Element f1' (if' b (insert "href" s1 f2') f2') [NodeContent s2])])
+--   where [s1, s2] = split (=='|') s
+-- fixTOCelem _ x = error (show x)
