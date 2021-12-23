@@ -12,7 +12,7 @@ syncCmd = concat $ [r|rsync -rv site/ ksb@rice.stanford.edu:afs-home/WWW/phil |]
                   : (f <$> [0..3])
   where f i = " --exclude '*._" <> show i <> ".html' "
 
-flags = ["pdf", "sync", "clear"]
+flags = ["pdf", "sync", "clear", "gen"]
 
 main :: IO ()
 main = do
@@ -26,9 +26,10 @@ main = do
     when ("clear" `elem` args)
       (system clearCmd >> system clearCmd2 >> pure ())
 
-    ss <- getSections "doc" -- parses doc/ folder
-    let lnks = getInternalLinks ss
-    sectionToHTML ("pdf" `elem` args) lnks ss -- modifies site/ folder
+    when ("gen" `elem` args) $ do
+      ss <- getSections "doc" -- parses doc/ folder
+      let lnks = getInternalLinks ss
+      sectionToHTML ("pdf" `elem` args) lnks ss -- modifies site/ folder
 
     when ("sync" `elem` args)
       (system syncCmd >> pure ())
