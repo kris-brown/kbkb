@@ -113,6 +113,14 @@ reps name bklinks =  ((\x->(x, nospace x)) <$> keys bklinks) ++ [
   ("&#39;Lucida Console&#39;","'Lucida Console'"),
   ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>", "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
 
+fixInternalLinks:: Text -> Text
+fixInternalLinks x = intercalate delim $ head chunks : (f <$> tail chunks)
+  where chunks = splitOn delim x
+        delim = "href=\"doc"
+        f chunk = let (hd:tl) = splitOn "\"" chunk in
+                  intercalate "\"" $ g hd : tl
+        g = nospace . fixPth'
+
 fixPth' :: Text -> Text
 fixPth' = pack . fixPth . unpack
 
@@ -130,7 +138,9 @@ fixHtml name bkLnks fp' tgt =
      txt <- P.readFile (tmp 1)
      let regmod = pack $ mapNonAscii appRegs txt
      P.writeFile (tmp 2) $ unpack regmod -- post regex version
-     let repmod = foldl (\h (n,r) -> replace n r h) regmod $ reps name bkLnks
+     let intLnk = fixInternalLinks regmod
+     P.writeFile (tmp 3) $ unpack intLnk -- post regex version
+     let repmod = foldl (\h (n,r) -> replace n r h) intLnk $ reps name bkLnks
      length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
   where tmp i = take (length fp - 5) fp <> "._" <> show i <> ".html"
         fp = fixPth fp'
