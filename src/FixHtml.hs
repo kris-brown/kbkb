@@ -88,15 +88,18 @@ isHeader y = Just True == (mtch . unpack . nameLocalName . elementName <$> ne y)
 fixBody :: [Node] -> [Node]
 fixBody = fixBodyDetail -- . concatMap addPreviews
 
+-- Create a section of backlinks
 makeBacklinks :: [(Text, Text)] -> Text
 makeBacklinks [] = ""
 makeBacklinks bklinks = "<h3>Linked by</h3><ul>" <> lnks <> "</ul>"
   where lnks = intercalate "\n" $ f <$> bklinks
-        f (x, y) = concat ["<li><a href=\"", nospace (fixPth' x), "\">",
-                           if' (null y) (last (splitOn "/" x)) y , "</a></li>"]
+        f (x, y) = let desc = if' (null y) "" ("#"<>y) in concat [
+          "<li><a href=\"", nospace (fixPth' x), desc, "\">",
+          if' (null y) (fixPth' $ last (splitOn "/" x)) y , "</a></li>"]
 
 nospace = T.filter (not . isSpace)
 
+-- Backlinks used to generate additional replacements
 reps::Text -> Map Text [(Text, Text)] -> [(Text,Text)]
 reps name bklinks =  ((\x->(x, nospace x)) <$> keys bklinks) ++ [
   ("</body>", makeBacklinks $ findWithDefault [] name bklinks),
@@ -217,7 +220,7 @@ tx = P.readFile "/Users/ksb/code/kbkb/site/doc/phil/People/Sellars/Quotes0.html"
 regs1 :: [(String, Regex)]
 regs1 = fmap mkRegex <$> [
    -- (1) Remove the post-pipe comment in internal links
-  ([r|href="doc\1"|],
+  ([r|href="doc\1" id="\2"|],
    [r|href=\"doc([^\"]+)\|([^\"]+)\"|])]
 --    -- (2) headers -> details
 --   ([r|<details id="\1" open="open">

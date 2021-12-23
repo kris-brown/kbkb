@@ -22,14 +22,12 @@ A static site generated from a directory of TeX files
 - Up / Prev / Next HTML buttons
 - Preview on hover
 - List of other pages that link to the current page
+  - Go back to the specific part that linked it
+  - Optionally include a description of the context of the link
 - keyword parsing at the top (TAGS, TEX)
     - TAGS *could* be like "def" / "exercise"
     - TEX *could* specify nondefault things to compile LaTeX with
 ## TODO
-- Backlinks should go to specific part of page (to the link itself)
-  - at the link: <a id="linkID" href="...">...</a>
-  - in the backlinks section <a href="url#linkID">
-  - this will allow us to coherently have the same page linked by the same page multiple times (e.g. Kant shows up in many different ways for a single section).
 - color code background based on tag
 - Cache hash of tex before computing pdf, check before recomputing
 - move buttons to a header
