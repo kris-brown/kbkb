@@ -2,7 +2,7 @@ module Main where
 import System.Process (system)
 import System.Environment (getArgs)
 import Control.Monad (when)
-import Lib (getSections, sectionToHTML, getInternalLinks)
+import Lib (getSections, sectionToHTML)
 import Text.RawString.QQ ( r )
 
 dsStore = [r|find doc -name .DS_Store -delete|]
@@ -28,8 +28,7 @@ main = do
 
     when ("gen" `elem` args) $ do
       ss <- getSections "doc" -- parses doc/ folder
-      let lnks = getInternalLinks ss
-      sectionToHTML ("pdf" `elem` args) lnks ss -- modifies site/ folder
+      sectionToHTML ("pdf" `elem` args) ss -- modifies site/ folder
 
     when ("sync" `elem` args)
       (system syncCmd >> pure ())

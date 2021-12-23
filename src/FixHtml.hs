@@ -10,7 +10,8 @@ import Debug.Trace (trace)
 import qualified Data.Text as T
 import Data.Text (concat, pack, unpack, Text, split, isPrefixOf,
                   replace, intercalate, strip, null, splitOn, dropWhile)
-import Data.Map (Map, (!), lookup, keys, insert, member, findWithDefault)
+import Data.Map (Map, (!), toList, lookup, keys, insert, member,
+                 findWithDefault)
 import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust, fromMaybe)
 import Data.Char (isDigit, isSpace, isAscii)
@@ -55,8 +56,9 @@ fixTOC :: Node -> Node
 fixTOC (NodeElement (Element e1 e2 e3)) = NodeElement $ if' (member "href" e2 && isJust prts)
   (Element e1 (insert "href" s1 e2) [NodeContent s2])
   (Element e1 e2 $ fixTOC <$> e3)
-    where prts = case e3 of [NodeContent s] -> case split (=='|') s of [a,b] -> Just [a,b]
-                                                                       _ -> Nothing
+    where prts = case e3 of [NodeContent s] -> case split (=='|') s of
+                                                  [a,b] -> Just [a,b]
+                                                  _ -> Nothing
                             _ -> Nothing
           [s1, s2] = fromJust prts
 fixTOC x = x
@@ -83,12 +85,12 @@ findNextH = break isHeader
 
 isHeader :: Node -> Bool
 isHeader y = Just True == (mtch . unpack . nameLocalName . elementName <$> ne y)
-
   where mtch str = (head str == 'h') && all isDigit (tail str)
+
 fixBody :: [Node] -> [Node]
 fixBody = fixBodyDetail -- . concatMap addPreviews
 
--- Create a section of backlinks
+-- Create a section of backlinks (if there are any)
 makeBacklinks :: [(Text, Text)] -> Text
 makeBacklinks [] = ""
 makeBacklinks bklinks = "<h3>Linked by</h3><ul>" <> lnks <> "</ul>"
@@ -97,11 +99,19 @@ makeBacklinks bklinks = "<h3>Linked by</h3><ul>" <> lnks <> "</ul>"
           "<li><a href=\"", nospace (fixPth' x), desc, "\">",
           if' (null y) (fixPth' $ last (splitOn "/" x)) y , "</a></li>"]
 
+nospace :: Text -> Text
 nospace = T.filter (not . isSpace)
 
+-- Given an id for a summary and its color, get a pattern to replace
+colorReps :: (Text, Text) -> (Text,Text)
+colorReps (sid, scolor) = ("summary " <> idstr, "summary " <> scolor <> idstr)
+  where idstr = "id=\"" <> sid <> ".html"
+
 -- Backlinks used to generate additional replacements
-reps::Text -> Map Text [(Text, Text)] -> [(Text,Text)]
-reps name bklinks =  ((\x->(x, nospace x)) <$> keys bklinks) ++ [
+-- Colordict used to add color to summary elements.
+reps::Text -> Map Text [(Text, Text)] -> Map Text Text -> [(Text,Text)]
+reps name bklinks colorDict =  (colorReps <$> toList colorDict) ++
+  ((\x->(x, nospace x)) <$> keys bklinks) ++ [
   ("</body>", makeBacklinks $ findWithDefault [] name bklinks),
   ("img src=\"", "img src=\""<>root<>"img/"),
   ("href=\"doc", "href=\"" <> root <> "doc"),
@@ -124,17 +134,21 @@ fixInternalLinks x = intercalate delim $ head chunks : (f <$> tail chunks)
                   intercalate "\"" $ g hd : tl
         g = nospace . fixPth'
 
+-- Text version of fixPth
 fixPth' :: Text -> Text
 fixPth' = pack . fixPth . unpack
 
+-- Remove the numeric prefixes used to order sections
 fixPth :: String -> String
 fixPth s = unpack $ intercalate "/" splt
   where p x = isDigit x || isSpace x
         splt = dropWhile p <$> (splitOn "/" $ pack s)
+
 -- Take an html file and replace it with a fixed version (backup of orig and
 -- intermediate states stored)
-fixHtml :: Text -> Map Text [(Text, Text)] -> FilePath -> Maybe FilePath -> IO ()
-fixHtml name bkLnks fp' tgt =
+fixHtml :: Text -> Map Text [(Text, Text)] -> Map Text Text ->
+            FilePath -> Maybe FilePath -> IO ()
+fixHtml name bkLnks colorDict fp' tgt =
   do copyFile fp $ tmp 0
      d <- readFile def fp
      writeFile def (tmp 1) (procc d)
@@ -143,10 +157,12 @@ fixHtml name bkLnks fp' tgt =
      P.writeFile (tmp 2) $ unpack regmod -- post regex version
      let intLnk = fixInternalLinks regmod
      P.writeFile (tmp 3) $ unpack intLnk -- post regex version
-     let repmod = foldl (\h (n,r) -> replace n r h) intLnk $ reps name bkLnks
+     let repmod = foldl (\h (n,r) -> replace n r h) intLnk $ rs
      length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
   where tmp i = take (length fp - 5) fp <> "._" <> show i <> ".html"
         fp = fixPth fp'
+        rs = reps name bkLnks colorDict -- all simple text substitutions
+
 -- Make an EMPTY summary element from a header element
 det :: Node ->Element
 det i@(NodeElement (Element _ a [NodeContent b])) = documentRoot $ parseText_ def $

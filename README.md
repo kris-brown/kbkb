@@ -1,18 +1,21 @@
 # kbkb
 
-A static site generated from a directory of TeX files
+A static site generated from a directory of TeX files. Currently hosted [here](https://web.stanford.edu/~ksb/phil/doc/phil.html).
+
 ## HOW TO USE
 
  - Edit TeX files, found in `doc/`.
- - `stack build --exec kbkb` to compile and run (populates `site/`)
- - call with command line arg `pdf` if you want to generate pdfs too
-   (takes long currently b/c we don't check whether the pdf has changed)
- - `rsync -rv site/ ksb@rice.stanford.edu:afs-home/WWW/phil --exclude '*._0.html' --exclude '*._1.html' --exclude '*._2.html'`
- - Sometimes need to clear: `src/clear.sh` and `ssh ksb@rice.stanford.edu rm -r afs-home/WWW/phil`
+ - `stack build --exec "kbkb <FLAGS>"` to compile and run
+ - flag `gen` populates `site/`
+ - flag `sync` ssh copies `site/` to where the website is hosted
+ - flag `pdf` will generate pdfs
+   (takes long time, currently)
 
- - Caveats
-  - Don't use unicode in titles of files
-  - Leading digits of file titles are stripped (these are just used to order)
+ - flag `clear` will wipe out the local and remote `site/` folders
+
+### Caveats
+- Don't use unicode, apostrophes, slashes in titles of files
+- Leading digits of file titles are stripped (these are just used to order)
 
 ## DONE
 - Convert directory of Latex into HTML + PDF
@@ -25,10 +28,11 @@ A static site generated from a directory of TeX files
   - Go back to the specific part that linked it
   - Optionally include a description of the context of the link
 - keyword parsing at the top (TAGS, TEX)
-    - TAGS *could* be like "def" / "exercise"
-    - TEX *could* specify nondefault things to compile LaTeX with
+    - TAGS like "def" / "exercise" (currently used to color the section)
+    - TEX *could* specify nondefault LaTeX options
+
 ## TODO
-- color code background based on tag
+- Automatically verify no unicode, apostrophes, slashes in titles of files
 - Cache hash of tex before computing pdf, check before recomputing
 - move buttons to a header
 - 'Home page' (with overall ToC, search bar, references, ABOUT, filters)

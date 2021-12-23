@@ -1,11 +1,11 @@
 
 module Lib
-  (sectionToHTML, getSections, getInternalLinks
+  (sectionToHTML, getSections
   ) where
 import Prelude hiding (concat, replicate, dropWhile)
 import qualified Prelude as P
 import Data.Text (Text, unpack, pack, splitOn, concat, replicate, intercalate,
-                  replace, isInfixOf, dropWhile)
+                  replace, isInfixOf, dropWhile, toLower)
 import qualified Data.Text as T
 import System.Process (system)
 import System.Directory (listDirectory, doesFileExist, copyFile,
@@ -13,8 +13,9 @@ import System.Directory (listDirectory, doesFileExist, copyFile,
                          getTemporaryDirectory, withCurrentDirectory)
 import Control.Monad (forM, forM_, when)
 import Data.Either (partitionEithers)
-import Data.Char(isSpace, isDigit)
-import Data.Map (Map, fromList, toList, insertWithKey', elems, keys, unions)
+import Data.Char(isSpace, isDigit, isAlphaNum)
+import Data.Map (Map, fromList, toList, insertWithKey', elems, keys, unions,
+                 singleton)
 import qualified Data.Map as M
 import Data.List (sortOn, elemIndex)
 import Data.Maybe (listToMaybe, mapMaybe)
@@ -25,15 +26,15 @@ import FixHtml (fixHtml)
 ---------------------
 -- Data structures --
 ---------------------
-data TagType = Def | Prop | Exercise | Example deriving (Show, Eq, Ord, Read)
+data TagType = Kris | Def | Prop | Exercise | Example
+                deriving (Show, Eq, Ord, Read)
+
 newtype MetaData = MetaData{tag::Maybe TagType} -- what else can we add
-                          deriving (Show, Eq, Ord)
+                    deriving (Show, Eq, Ord)
 
 data Section = Sections {sname::Text, sintro::Text, sbody::[Section]}
              | Notes {nname::Text, nbody::Text}
              deriving (Show, Eq, Ord)
-
-
 
 -- Parse the opening lines of a tex file that look like "% ORD 2" / "% TAG Def"
 parseMetaData :: Text -> MetaData
@@ -60,12 +61,14 @@ title' =  last . splitOn "/" . title''
 title'':: Section -> Text
 title'' = intercalate "/" . fmap dropDigitSpace . splitOn "/" . title
 
+dropDigitSpace :: Text -> Text
 dropDigitSpace = dropWhile (\x->isDigit x || isSpace x)
 
 md :: Section -> MetaData
 md = parseMetaData . (\case
   Sections _ t _ -> t
   Notes _ t ->  t)
+
 -------------------
 -- Basic helpers --
 -------------------
@@ -75,7 +78,6 @@ if' False _ y = y
 
 nospace :: Text -> Text
 nospace = T.filter (not . isSpace)
-
 
 ---------------
 -- Constants --
@@ -125,6 +127,24 @@ invertLinkList m = nonempty $ fromList $ f <$> keys m
 
 getInternalLinks :: Section -> Map Text [(Text, Text)]
 getInternalLinks = invertLinkList . getInternalLinks'
+
+tagToColor :: MetaData -> Text
+tagToColor (MetaData m) = " style=\"background:" <> (case m of
+                              Just Kris     -> "lightpink"
+                              Just Def      -> "lightgreen"
+                              Just Prop     -> "lavender"
+                              Just Exercise ->  "lightsalmon"
+                              Just Example  -> "powderblue"
+                              Nothing       -> "lightgrey"
+                            ) <> ";\" "
+
+getColors :: Section -> Map Text Text
+getColors n@(Sections _ _ ss) = unions $ singleton (processColorName n)
+                                          (tagToColor $ md n):(getColors<$>ss)
+getColors n@(Notes _ _) = singleton (processColorName n) $ tagToColor $ md n
+
+processColorName :: Section -> Text
+processColorName = toLower . T.filter isAlphaNum . title''
 
 -- Parse a TOP LEVEL section from directory of tex files
 getSections :: FilePath -> IO Section
@@ -183,51 +203,54 @@ upPrevNext x y = error $ show x <> show y
 
 
 -- Main workhorse function
-sectionToHTMLrec:: Bool -> Map Text [(Text, Text)] -> Maybe Section -> Section ->  IO ()
-sectionToHTMLrec mkPdf bkLinks parent s  = do
-  -- Set up temporary directory and make a directory in site/
-  tmpdir <- (<> t) <$> getTemporaryDirectory
-  createDirectoryIfMissing True tmpdir
-  when (isSect s) (createDirectoryIfMissing True $ "site/" <> t)
-  let tmppth = tmpdir <> "/" <> t'
+sectionToHTMLrec:: Bool -> Map Text [(Text, Text)] -> Map Text Text
+                        -> Maybe Section -> Section ->  IO ()
+sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
+    -- Set up temporary directory and make a directory in site/
+    tmpdir <- (<> t) <$> getTemporaryDirectory
+    createDirectoryIfMissing True tmpdir
+    when (isSect s) (createDirectoryIfMissing True $ "site/" <> t)
+    let tmppth = tmpdir <> "/" <> t'
 
-  -- Assemble LaTeX file from all subsections
-  writeFile tmppth $ unpack $ toLatex s parent
-  let cptexcmd = "cp " <> tmppth <> " site/" <> t <> ".tex"
-  system cptexcmd
+    -- Assemble LaTeX file from all subsections
+    writeFile tmppth $ unpack $ toLatex s parent
+    let cptexcmd = "cp " <> tmppth <> " site/" <> t <> ".tex"
+    system cptexcmd
 
-  -- generate html and images
-  let pdcmd = "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
-    \--bibliography=my.bib --from latex+raw_tex \
-    \--lua-filter=src/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
-  _ <- system pdcmd
+    -- generate html and images
+    let pdcmd = "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
+      \--bibliography=my.bib --from latex+raw_tex \
+      \--lua-filter=src/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
+    _ <- system pdcmd
 
-  -- move generated figures to site/img/
-  pngs <- filter (\p -> drop (length p - 4) p == ".png") <$> listDirectory "."
-  forM_ pngs (\p -> renameFile p ("site/img/" <> p))
+    -- move generated figures to site/img/
+    pngs <- filter (\p -> drop (length p - 4) p == ".png") <$> listDirectory "."
+    forM_ pngs (\p -> renameFile p ("site/img/" <> p))
 
-  -- If we also want pdfs
-  when mkPdf (do
-    let pdfcmd = "pdflatex -output-directory=" <> tmpdir <> " " <> tmppth
-    system pdfcmd
-    let cpcmd = "cp " <> (tmppth <> ".pdf") <> " site/" <> od
-    system cpcmd >> pure ())
+    -- If we also want pdfs
+    when mkPdf (do
+      let pdfcmd = "pdflatex -output-directory=" <> tmpdir <> " " <> tmppth
+      system pdfcmd
+      let cpcmd = "cp " <> (tmppth <> ".pdf") <> " site/" <> od
+      system cpcmd >> pure ())
 
-  -- Modify html code
-  fixHtml (title'' s) bkLinks html Nothing
+    -- Modify html code
+    fixHtml (title'' s) bkLinks colorDict html Nothing
 
-  -- Recursively call sub-sections
-  when (isSect s) (sequence_ $ sectionToHTMLrec mkPdf bkLinks (Just s) <$> sbody s)
-
+    -- Recursively call sub-sections
+    when (isSect s) (sequence_ $
+      sectionToHTMLrec mkPdf bkLinks colorDict (Just s) <$> sbody s)
   where
     [t, t'] = unpack . nospace <$> ([title'', title'] <*> [s])
     html = "site/" <> t <> ".html"
     od = unpack $ intercalate "/" $ init $ splitOn "/" $ pack t
 
 -- Top level call. Initialize things and cleanup after compiling pdfs
-sectionToHTML:: Bool -> Map Text [(Text, Text)] -> Section -> IO ()
-sectionToHTML mkPdf bkLinks topSection  = do
-  createDirectoryIfMissing True "site/img"
-  sequence_ $ (\x-> copyFile ("src/"<>x) ("site/"<> x)) <$> [
-    "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
-  sectionToHTMLrec mkPdf bkLinks Nothing topSection
+sectionToHTML:: Bool -> Section -> IO ()
+sectionToHTML mkPdf topSection = do
+    createDirectoryIfMissing True "site/img"
+    sequence_ $ (\x-> copyFile ("src/"<>x) ("site/"<> x)) <$> [
+      "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
+    sectionToHTMLrec mkPdf bkLinks colorDict Nothing topSection
+  where bkLinks = getInternalLinks topSection
+        colorDict = getColors topSection
