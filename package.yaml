@@ -24,6 +24,7 @@ default-extensions:
 - DeriveGeneric
 - LambdaCase
 - QuasiQuotes
+- FlexibleContexts
 
 dependencies:
 - base >= 4.7 && < 5

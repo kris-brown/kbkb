@@ -4,18 +4,22 @@ import Text.XML (Document(..), parseText_, readFile, writeFile,
                  def, Element(Element, elementName, elementAttributes, elementNodes),
                  Node(NodeElement, NodeContent),
                  Name(nameLocalName) )
-import Prelude hiding (readFile, writeFile, lookup, null, concat)
+import Prelude hiding (readFile, writeFile, dropWhile, lookup, null, concat)
 import qualified Prelude as P
 import Debug.Trace (trace)
+import qualified Data.Text as T
 import Data.Text (concat, pack, unpack, Text, split, isPrefixOf,
-                  replace, intercalate, strip, null)
-import Data.Map ((!), lookup, insert, member)
+                  replace, intercalate, strip, null, splitOn, dropWhile)
+import Data.Map (Map, (!), lookup, keys, insert, member, findWithDefault)
+import qualified Data.Map as M
 import Data.Maybe (isJust, fromJust, fromMaybe)
-import Data.Char (isDigit)
+import Data.Char (isDigit, isSpace, isAscii)
 import qualified Data.Text.Internal.Lazy as L
 import qualified Data.Text.Lazy as LZ
 import System.IO.Unsafe (unsafePerformIO)
 import System.Directory (copyFile)
+import Text.Regex (Regex, mkRegex, subRegex)
+import Text.RawString.QQ ( r )
 
 -- Utilities
 if' :: Bool -> a -> a -> a
@@ -35,6 +39,8 @@ ne :: Node -> Maybe Element
 ne (NodeElement x) = Just x
 ne x = Nothing
 
+-- Does processing that requires knowledge of HTML AST.
+-- Modifies TOC with fixTOC. Adds previews and collapsible sections.
 procc :: Document -> Document
 procc x = Document (documentPrologue x) newElem (documentEpilogue x)
   where dr@(Element n1 n2 _) = documentRoot x
@@ -82,39 +88,59 @@ isHeader y = Just True == (mtch . unpack . nameLocalName . elementName <$> ne y)
 fixBody :: [Node] -> [Node]
 fixBody = fixBodyDetail -- . concatMap addPreviews
 
+makeBacklinks :: [(Text, Text)] -> Text
+makeBacklinks [] = ""
+makeBacklinks bklinks = "<h3>Linked by</h3><ul>" <> lnks <> "</ul>"
+  where lnks = intercalate "\n" $ f <$> bklinks
+        f (x, y) = concat ["<li><a href=\"", nospace (fixPth' x), "\">",
+                           if' (null y) (last (splitOn "/" x)) y , "</a></li>"]
 
-reps::[(Text,Text)]
-reps = [("img src=\"", "img src=\""<>root<>"img/"),
-        ("href=\"doc", "href=\"" <> root <> "doc"),
-        ("src=\"doc", "src=\"" <> root <> "doc"),
-        ("role=\"doc-bibliography\">", "role=\"doc-bibliography\"><strong>Bibliography</strong><br>"),
-        -- Insert code into head and body
-        ("</head>",jshead),("</body>",jsbody),
-        -- Change width
-        ("max-width: 36em", "max-width: 80em"),
-        -- Some things get mangled by Text.XML, fix them:
-        ("li &gt; ol, li &gt; ul", "li > ol, li > ul"),
-        ("&#39;Lucida Console&#39;","'Lucida Console'"),
-        ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>", "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
+nospace = T.filter (not . isSpace)
 
-ex = fixHtml "site/doc/phil/PhilSituations0.html" (Just "res.html")
-fixHtml :: FilePath -> Maybe FilePath -> IO ()
-fixHtml fp tgt =
+reps::Text -> Map Text [(Text, Text)] -> [(Text,Text)]
+reps name bklinks =  ((\x->(x, nospace x)) <$> keys bklinks) ++ [
+  ("</body>", makeBacklinks $ findWithDefault [] name bklinks),
+  ("img src=\"", "img src=\""<>root<>"img/"),
+  ("href=\"doc", "href=\"" <> root <> "doc"),
+  ("src=\"doc", "src=\"" <> root <> "doc"),
+  ("role=\"doc-bibliography\">", "role=\"doc-bibliography\"><strong>Bibliography</strong><br>"),
+  -- Insert code into head and body
+  ("</head>",jshead), ("</body>",jsbody),
+  -- Change width
+  ("max-width: 36em", "max-width: 80em"),
+  -- Some things get mangled by Text.XML, fix them:
+  ("li &gt; ol, li &gt; ul", "li > ol, li > ul"),
+  ("&#39;Lucida Console&#39;","'Lucida Console'"),
+  ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>", "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
+
+fixPth' :: Text -> Text
+fixPth' = pack . fixPth . unpack
+
+fixPth :: String -> String
+fixPth s = unpack $ intercalate "/" splt
+  where p x = isDigit x || isSpace x
+        splt = dropWhile p <$> (splitOn "/" $ pack s)
+-- Take an html file and replace it with a fixed version (backup of orig and
+-- intermediate states stored)
+fixHtml :: Text -> Map Text [(Text, Text)] -> FilePath -> Maybe FilePath -> IO ()
+fixHtml name bkLnks fp' tgt =
   do copyFile fp $ tmp 0
      d <- readFile def fp
      writeFile def (tmp 1) (procc d)
      txt <- P.readFile (tmp 1)
-     let repmod = foldl (\h (n,r) -> replace n r h) (pack txt) reps
+     let regmod = pack $ mapNonAscii appRegs txt
+     P.writeFile (tmp 2) $ unpack regmod -- post regex version
+     let repmod = foldl (\h (n,r) -> replace n r h) regmod $ reps name bkLnks
      length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
-  where tmp i = take (length fp - 5) fp <> show i <> ".html"
-
+  where tmp i = take (length fp - 5) fp <> "._" <> show i <> ".html"
+        fp = fixPth fp'
 -- Make an EMPTY summary element from a header element
 det :: Node ->Element
 det i@(NodeElement (Element _ a [NodeContent b])) = documentRoot $ parseText_ def $
   LZ.fromStrict $ "<details id=\"" <> hid <>
     "\" open=\"open\">\n" <>
     "<summary id=\"" <> hid <> "\"> <strong>" <>
-    "<a href=\"" <> hurl <>"\">" <> hname <> "</a>\n" <> "</strong>\n" <>
+    "<a href=\"" <> nospace (fixPth' hurl) <>"\">" <> hname <> "</a>\n" <> "</strong>\n" <>
     "</summary>" <> "\n<div id=\"" <> hid <> "\"></div></details>\n"
   where hid = a ! "id"
         [hurl, hname] = split (=='|') b
@@ -124,7 +150,7 @@ det _ = undefined
 -- Trailing content (footnotes/bibliography) stored in a separate list
 hpartition :: [Node] -> ([[Node]], [Node])
 hpartition (n:tl) = (reverse foldres1, reverse foldres2)
-  where f ((h:t), xtra) nextNode = if' ((not $ P.null xtra) || isBib nextNode)
+  where f (h:t, xtra) nextNode = if' (not (P.null xtra) || isBib nextNode)
                                        (h:t, nextNode:xtra)
                                        (if' (lev nextNode == toplev)
                                             ([nextNode]:h:t, xtra)
@@ -153,12 +179,36 @@ box lnk = NodeElement $ documentRoot $ parseText_ def $ LZ.concat [
 
 
 
+appRegs :: String -> String
+appRegs txt = foldl (\t (s,r) -> subRegex r t s) txt regs1
 
--- regs1 :: [(String, Regex)]
--- regs1 = fmap mkRegex <$> [
---    -- (1) Remove the pre-pipe component to fix TOC entries
---   ([r|<li><a href="\1">\3</a>|],
---    [r|<li><a href="(.+)">doc\/(.+)\|(.+)<\/a>|]),
+
+strSectionsRec :: Bool -> (a->Bool) -> [a] -> [[a]]
+strSectionsRec True _ [] = []
+strSectionsRec False _ [] = [[]]
+strSectionsRec curr f s = h : strSectionsRec (not curr) f t
+  where (h, t) = (if' curr span break) f s
+strSections = strSectionsRec True isAscii
+pairList :: [a] -> [(a,a)]
+pairList [] = []
+pairList (a:b:c) = (a,b):(pairList c)
+pairList x = error $ show $ length x
+unPairList :: [([a],[a])] -> [a]
+unPairList [] = []
+unPairList ((a,b):tl) = a ++ b ++ (unPairList tl)
+
+-- Apply transformation function to ASCII portions of str
+mapNonAscii :: (String -> String) -> String -> String
+mapNonAscii f s = unPairList $ zip (f <$> ascii) nonascii
+  where (ascii, nonascii) = unzip $ pairList $ strSections s
+
+
+tx = P.readFile "/Users/ksb/code/kbkb/site/doc/phil/People/Sellars/Quotes0.html"
+regs1 :: [(String, Regex)]
+regs1 = fmap mkRegex <$> [
+   -- (1) Remove the post-pipe comment in internal links
+  ([r|href="doc\1"|],
+   [r|href=\"doc([^\"]+)\|([^\"]+)\"|])]
 --    -- (2) headers -> details
 --   ([r|<details id="\1" open="open">
 -- <summary id="\1"> <strong><a href="\2">\3</a></strong> </summary>
