@@ -29,6 +29,8 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
     - TEX *could* specify nondefault LaTeX options
 
 ## TODO
+- Content: Brandom lectures, math textbooks
+- Make more path-related things case-insensitive
 - Automatically detect broken links
 - Automatically verify no unicode, apostrophes, slashes in titles of files
 - Cache hash of tex before computing pdf, check before recomputing
