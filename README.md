@@ -4,8 +4,8 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 
 ## HOW TO USE
 
- - Edit TeX files, found in `doc/`.
- - `stack build --exec "kbkb <FLAGS>"` to compile and run
+- Edit TeX files, found in `doc/`.
+- `stack build --exec "kbkb <FLAGS>"` to compile and run
   - flag `gen` populates `site/`
   - flag `sync` ssh copies `site/` to where the website is hosted
   - flag `pdf` will generate pdfs

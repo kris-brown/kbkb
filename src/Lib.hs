@@ -210,11 +210,14 @@ upPrevNext x y = error $ show x <> show y
 sectionToHTMLrec:: Bool -> Map Text [(Text, Text)] -> Map Text Text
                         -> Maybe Section -> Section ->  IO ()
 sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
-    -- Set up temporary directory and make a directory in site/
+    -- Recursively call sub-sections: do this first,   so errors are specific
+    when (isSect s) $ do createDirectoryIfMissing True $ "site/" <> t
+                         sequence_ $ sectionToHTMLrec mkPdf bkLinks colorDict
+                                     (Just s) <$> sbody s
+    -- Set up temporary directory and make a directory
     tmpdir <- (<> t) <$> getTemporaryDirectory
     createDirectoryIfMissing True tmpdir
 
-    when (isSect s) (createDirectoryIfMissing True $ "site/" <> t)
     let tmppth = tmpdir <> "/" <> t'
 
     -- Assemble LaTeX file from all subsections
@@ -242,9 +245,7 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     -- Modify html code
     fixHtml (title'' s) bkLinks colorDict html Nothing
 
-    -- Recursively call sub-sections
-    when (isSect s) (sequence_ $
-      sectionToHTMLrec mkPdf bkLinks colorDict (Just s) <$> sbody s)
+
   where
     [t, t'] = unpack . toLower . nospace <$> ([title'', title'] <*> [s])
     html = "site/" <> t <> ".html"

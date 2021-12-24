@@ -1,0 +1,8 @@
+A \emph{pullback} along a \href{doc/1 math/Seven Sketches in Compositionality/1 Generative Effects/4 Monotone maps}{monotone map} $P \xrightarrow{f} Q$
+
+  \begin{itemize}
+    \item We take the preimage of $f$, but not for a single element of $Q$ but rather an \href{doc/1 math/Seven Sketches in Compositionality/1 Generative Effects/3 Preorders/Upper set}{upper set} of $Q$.
+    \item $\begin{tikzcd} {(P, \leq_P)} \arrow[d, "f^*(u) \in U(P)"', dashed] \arrow[r, "f"] & {(Q, \leq_Q)} \arrow[ld, "u \in U(Q)"] \\ \mathbb{B}ool& \end{tikzcd}$
+    \item Noting that \href{P1.78]{upper sets are monotone maps to Bool}, it follows that the result of a pullback is an upper set in $P$ follows from the fact that \href{P1.70]{composition preserves monotonicity}.
+    \item Therefore the type of the pullback is $U(Q) \xrightarrow{f^*} U(P)$
+  \end{itemize}
