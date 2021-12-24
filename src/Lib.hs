@@ -108,21 +108,21 @@ linkMatch :: Text -> [(Text, Text)]
 linkMatch = fmap (splt . linkend) . linkstarts
   where linkstarts = tail . splitOn "\\href{doc/"
         linkend = splitOn "|" . head . splitOn "}"
-        splt [a] = ("doc/"<>a, "")
-        splt [a,b] = ("doc/"<>a, b)
+        splt [a] = ("doc/"<>toLower (multiDropDigitSpace a), "")
+        splt [a,b] = ("doc/"<> toLower (multiDropDigitSpace a), b)
         splt _ = undefined
 
 linkBody :: Text -> Text -> Map Text [(Text, Text)]
-linkBody n t = M.singleton n $ linkMatch t
+linkBody n t = M.singleton (toLower $ multiDropDigitSpace n) $ linkMatch t
 
 getInternalLinks' :: Section -> Map Text [(Text, Text)]
-getInternalLinks' (Notes n b) = linkBody (multiDropDigitSpace n) b
+getInternalLinks' (Notes n b) = linkBody  n b
 getInternalLinks' (Sections n i b) = unions $
-  linkBody (multiDropDigitSpace n) i : (getInternalLinks' <$> b)
+  linkBody n i : (getInternalLinks' <$> b)
 
 -- Switch from links TO pages to links FROM pages (+ comment)
 invertLinkList :: Map Text [(Text, Text)] -> Map Text [(Text, Text)]
-invertLinkList m = trace (unpack $ intercalate "\n" $ pack . show <$> toList m) $
+invertLinkList m = --trace (unpack $ intercalate "\n" $ pack . show <$> toList m) $
                     nonempty $ fromList $ f <$> keys m
   where trips = concatMap (\(a, bcs) -> (\(b,c)-> (b, a, c)) <$> bcs) $ toList m
         f key = (key, (\(a,b,c)->(b,c)) <$> filter (\(x,_,_) -> key == x) trips)
@@ -135,8 +135,8 @@ tagToColor :: MetaData -> Text
 tagToColor (MetaData m) = " style=\"background:" <> (case m of
                               Just Kris     -> "lightpink"
                               Just Def      -> "lightgreen"
-                              Just Prop     -> "lavender"
-                              Just Exercise ->  "lightsalmon"
+                              Just Prop     -> "mediumpurple"
+                              Just Exercise -> "lightsalmon"
                               Just Example  -> "powderblue"
                               Nothing       -> "lightgrey"
                             ) <> ";\" "
@@ -147,8 +147,9 @@ getColors n@(Sections _ _ ss) = unions $ singleton (processColorName n)
 getColors n@(Notes _ _) = singleton (processColorName n) $ tagToColor $ md n
 
 processColorName :: Section -> Text
-processColorName = toLower . T.filter p . title''
+processColorName s =  toLower $ T.filter p (title'' s <> f (title' s))
   where p x = isAlphaNum x || x == '-'
+        f =  T.replace " " "-"
 -- Parse a TOP LEVEL section from directory of tex files
 getSections :: FilePath -> IO Section
 getSections fp = do
@@ -174,7 +175,7 @@ latexBody _ (Notes _ n) = n
 latexBody n (Sections _ i ss) = concat $ tc : i : map (f n) ss
  where tc = if' (n == 0) "\n\\tableofcontents\n" ""
        f n s = concat ["\n\\",hierarchy !! n, "{",
-                       (nospace (title'' s) <> ".html") <> "|" <> title' s,
+                       nospace (title'' s) <> "|" <> title' s,
                        "}\n", latexBody (n+1) s]
 
 refPat :: Text -> Text -> Text
@@ -195,9 +196,9 @@ toLatex x parent = concat [preamb, upprevnext, pdflink, "\n\\title{", title' x,
 upPrevNext :: Section -> Maybe Section -> Text
 upPrevNext _ Nothing = ""
 upPrevNext s (Just p@(Sections _ _ ss)) = intercalate "\n" [
-    if' (i > 0) (refPat (pths!!(i-1) <> ".html") "Previous") "",
-    refPat (nospace (title'' p) <> ".html") "Up",
-    if' (i < n) (refPat (pths!!(i+1) <> ".html") "Next") ""]
+    if' (i > 0) (refPat (pths!!(i-1)) "Previous") "",
+    refPat (nospace (title'' p)) "Up",
+    if' (i < n) (refPat (pths!!(i+1)) "Next") ""]
   where pths = nospace . title'' <$> ss
         (Just i) = elemIndex (nospace $ title'' s) pths
         n = length ss - 1
@@ -245,7 +246,7 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     when (isSect s) (sequence_ $
       sectionToHTMLrec mkPdf bkLinks colorDict (Just s) <$> sbody s)
   where
-    [t, t'] = unpack . nospace <$> ([title'', title'] <*> [s])
+    [t, t'] = unpack . toLower . nospace <$> ([title'', title'] <*> [s])
     html = "site/" <> t <> ".html"
     od = unpack $ intercalate "/" $ init $ splitOn "/" $ pack t
 

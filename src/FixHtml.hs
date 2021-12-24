@@ -8,7 +8,7 @@ import Prelude hiding (readFile, writeFile, dropWhile, lookup, null, concat)
 import qualified Prelude as P
 import Debug.Trace (trace)
 import qualified Data.Text as T
-import Data.Text (concat, pack, unpack, Text, split, isPrefixOf,
+import Data.Text (concat, pack, unpack, Text, takeEnd, split, isPrefixOf, toLower,
                   replace, intercalate, strip, null, splitOn, dropWhile)
 import Data.Map (Map, (!), toList, lookup, keys, insert, member,
                  findWithDefault)
@@ -52,6 +52,7 @@ procc x = Document (documentPrologue x) newElem (documentEpilogue x)
         newElem = Element n1 n2 [dhead, NodeElement (Element b1 b2 fixed)]
 
 -- Fix TOC by replacing the "URL | name" entries with hrefs
+-- SHOULD WE ADD .html to the end and lower case here?
 fixTOC :: Node -> Node
 fixTOC (NodeElement (Element e1 e2 e3)) = NodeElement $ if' (member "href" e2 && isJust prts)
   (Element e1 (insert "href" s1 e2) [NodeContent s2])
@@ -96,7 +97,7 @@ makeBacklinks [] = ""
 makeBacklinks bklinks = "<h3>Linked by</h3><ul>" <> lnks <> "</ul>"
   where lnks = intercalate "\n" $ f <$> bklinks
         f (x, y) = let desc = if' (null y) "" ("#"<>y) in concat [
-          "<li><a href=\"", nospace (fixPth' x), desc, "\">",
+          "<li><a href=\"", toLower $ nospace (fixPth' x), desc, "\">",
           if' (null y) (fixPth' $ last (splitOn "/" x)) y , "</a></li>"]
 
 nospace :: Text -> Text
@@ -104,15 +105,15 @@ nospace = T.filter (not . isSpace)
 
 -- Given an id for a summary and its color, get a pattern to replace
 colorReps :: (Text, Text) -> (Text,Text)
-colorReps (sid, scolor) = ("summary " <> idstr, "summary " <> scolor <> idstr)
-  where idstr = "id=\"" <> sid <> ".html"
+colorReps (sid, scolor) =  ("summary " <> idstr, "summary " <> scolor <> idstr)
+  where idstr = "id=\"" <> sid -- <> ".html"
 
 -- Backlinks used to generate additional replacements
 -- Colordict used to add color to summary elements.
 reps::Text -> Map Text [(Text, Text)] -> Map Text Text -> [(Text,Text)]
 reps name bklinks colorDict =  (colorReps <$> toList colorDict) ++
   ((\x->(x, nospace x)) <$> keys bklinks) ++ [
-  ("</body>", makeBacklinks $ findWithDefault [] name bklinks),
+  ("</body>", makeBacklinks $ findWithDefault [] (toLower name) bklinks),
   ("img src=\"", "img src=\""<>root<>"img/"),
   ("src=\"img/", "src=\"" <> root <> "img/"), -- images from \includegraphics
   ("href=\"doc", "href=\"" <> root <> "doc"),
@@ -133,13 +134,14 @@ reps name bklinks colorDict =  (colorReps <$> toList colorDict) ++
   ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>",
    "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
 
+-- IS THIS WHERE WE ADD .html and lowercase?
 fixInternalLinks:: Text -> Text
 fixInternalLinks x = intercalate delim $ head chunks : (f <$> tail chunks)
   where chunks = splitOn delim x
         delim = "href=\"doc"
         f chunk = let (hd:tl) = splitOn "\"" chunk in
                   intercalate "\"" $ g hd : tl
-        g = nospace . fixPth'
+        g = (\x -> if' (takeEnd 4 x == ".pdf") x (x <> ".html")) . toLower . nospace . fixPth'
 
 -- Text version of fixPth
 fixPth' :: Text -> Text
@@ -244,7 +246,7 @@ tx = P.readFile "/Users/ksb/code/kbkb/site/doc/phil/People/Sellars/Quotes0.html"
 regs1 :: [(String, Regex)]
 regs1 = fmap mkRegex <$> [
    -- (1) Remove the post-pipe comment in internal links
-  ([r|href="doc\1.html" id="\2"|],
+  ([r|href="doc\1" id="\2"|],
    [r|href=\"doc([^\"]+)\|([^\"]+)\"|])]
 --    -- (2) headers -> details
 --   ([r|<details id="\1" open="open">

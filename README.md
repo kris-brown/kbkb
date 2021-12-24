@@ -44,7 +44,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - Better document the code
 - Performance improvement of how the site functions?
 - Integrate automatic flashcard generation from source
-
+- Modify the regex that operates on internal links so that it matches even when there is no comment (separated by `|`), that way, we add the `.html` even in the other case (needed when linking to a non-leaf-node of the directory tree).
 ## Inspirations
 - [Workflowy](https://www.workflowy.com/features/) / [Nested](https://orteil.dashnet.org/nested)
 - [Stacks project](https://stacks.math.columbia.edu/)
