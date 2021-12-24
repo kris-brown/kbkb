@@ -14,7 +14,7 @@ function RawBlock(el)
     local f = io.open(tmp .. ".tex", 'w')
     f:write("\\documentclass{standalone}\n")
     -- include all packages needed to compile your images
-    f:write("\\usepackage{tikz}\n\\usepackage{stanli}\n")
+    f:write("\\usepackage{tikz}\n\\usepackage{tikz-cd}\n\\usepackage{amsmath}\n\\usepackage{amssymb}\n\\usepackage{mathrsfs}\n\\usepackage{mathtools}\n\\usepackage{stanli}\n")
     f:write([[\tikzset{
       %Define standard arrow tip
       >=stealth',
@@ -26,7 +26,7 @@ function RawBlock(el)
              text width=6.5em,
              minimum height=2em,
              text centered},
-      % Define arrow style
+      % TAG Define arrow style
       pil/.style={
              ->,
              thick,
@@ -38,7 +38,7 @@ function RawBlock(el)
     f:write("\n\\end{document}\n")
     f:close()
     os.execute("pdflatex -output-directory " .. tmpdir  .. " " .. tmp)
-    os.execute("convert " .. tmp .. ".pdf " .. outfile)
+    os.execute("convert -density 300 " .. tmp .. ".pdf -resize 50% " .. outfile)
     os.remove(tmp .. ".tex")
     os.remove(tmp .. ".pdf")
     os.remove(tmp .. ".log")
@@ -46,7 +46,7 @@ function RawBlock(el)
   end
 
   -- Don't alter element if it's not a tikzpicture environment
-  if not el.text:match'^\\begin{tikzpicture}' then
+  if not (el.text:match'^\\begin{tikzpicture}' or el.text:match'^\\begin{tikzcd}') then
     return nil
     -- Alternatively, parse the contained LaTeX now:
     -- return pandoc.read(el.text, 'latex').blocks

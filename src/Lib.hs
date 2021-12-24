@@ -59,10 +59,12 @@ title' :: Section -> Text
 title' =  last . splitOn "/" . title''
 
 title'':: Section -> Text
-title'' = intercalate "/" . fmap dropDigitSpace . splitOn "/" . title
+title'' = multiDropDigitSpace . title
 
 dropDigitSpace :: Text -> Text
 dropDigitSpace = dropWhile (\x->isDigit x || isSpace x)
+multiDropDigitSpace :: Text -> Text
+multiDropDigitSpace = intercalate "/" . fmap dropDigitSpace . splitOn "/"
 
 md :: Section -> MetaData
 md = parseMetaData . (\case
@@ -83,7 +85,7 @@ nospace = T.filter (not . isSpace)
 -- Constants --
 ---------------
 packages :: [Text]
-packages = ["tikz", "hyperref", "amsmath", "amssymb", "amsthm"]
+packages = ["tikz", "tikz-cd", "hyperref", "amsmath", "amssymb", "amsthm"]
 
 preamb :: Text
 preamb = intercalate "\n" $ ["\\documentclass[12pt,a4paper]{report}"] ++ ((
@@ -114,13 +116,14 @@ linkBody :: Text -> Text -> Map Text [(Text, Text)]
 linkBody n t = M.singleton n $ linkMatch t
 
 getInternalLinks' :: Section -> Map Text [(Text, Text)]
-getInternalLinks' (Notes n b) = linkBody n b
+getInternalLinks' (Notes n b) = linkBody (multiDropDigitSpace n) b
 getInternalLinks' (Sections n i b) = unions $
-                                    linkBody n i:(getInternalLinks' <$> b)
+  linkBody (multiDropDigitSpace n) i : (getInternalLinks' <$> b)
 
 -- Switch from links TO pages to links FROM pages (+ comment)
 invertLinkList :: Map Text [(Text, Text)] -> Map Text [(Text, Text)]
-invertLinkList m = nonempty $ fromList $ f <$> keys m
+invertLinkList m = trace (unpack $ intercalate "\n" $ pack . show <$> toList m) $
+                    nonempty $ fromList $ f <$> keys m
   where trips = concatMap (\(a, bcs) -> (\(b,c)-> (b, a, c)) <$> bcs) $ toList m
         f key = (key, (\(a,b,c)->(b,c)) <$> filter (\(x,_,_) -> key == x) trips)
         nonempty = M.filter (not . null)

@@ -18,7 +18,7 @@ import Data.Char (isDigit, isSpace, isAscii)
 import qualified Data.Text.Internal.Lazy as L
 import qualified Data.Text.Lazy as LZ
 import System.IO.Unsafe (unsafePerformIO)
-import System.Directory (copyFile)
+import System.Directory (copyFile, removeFile)
 import Text.Regex (Regex, mkRegex, subRegex)
 import Text.RawString.QQ ( r )
 
@@ -166,6 +166,7 @@ fixHtml name bkLnks colorDict fp' tgt =
      --P.writeFile (tmp 3) $ unpack intLnk -- post regex version
      let repmod = foldl (\h (n,r) -> replace n r h) intLnk $ rs
      length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
+     removeFile $ tmp 1
   where tmp i = take (length fp - 5) fp <> "._" <> show i <> ".html"
         fp = fixPth fp'
         rs = reps name bkLnks colorDict -- all simple text substitutions
@@ -243,7 +244,7 @@ tx = P.readFile "/Users/ksb/code/kbkb/site/doc/phil/People/Sellars/Quotes0.html"
 regs1 :: [(String, Regex)]
 regs1 = fmap mkRegex <$> [
    -- (1) Remove the post-pipe comment in internal links
-  ([r|href="doc\1" id="\2"|],
+  ([r|href="doc\1.html" id="\2"|],
    [r|href=\"doc([^\"]+)\|([^\"]+)\"|])]
 --    -- (2) headers -> details
 --   ([r|<details id="\1" open="open">

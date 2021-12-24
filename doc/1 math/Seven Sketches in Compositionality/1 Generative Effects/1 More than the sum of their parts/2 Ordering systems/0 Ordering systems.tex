@@ -1,0 +1,10 @@
+\begin{itemize}
+    \item The operation of joining systems in \hyperref[1.1.1]{1.1.1} can be derived from a more basic structure: order.
+
+    \item Let $A \leq B$ be defined as a relationship that holds when $\forall x,y:\ (x,y) \in A \implies (x,y) \in B$
+    \item  \begin{tikzcd}& \boxed{a b c}&\\\boxed{a b} \boxed{c} \arrow[ru] & \boxed{ac}\boxed{b} \arrow[u] & \boxed{a}\boxed{bc} \arrow[lu] \\& \boxed{a}\boxed{b}\boxed{c} \arrow[lu] \arrow[u] \arrow[ru] & \end{tikzcd}
+    \item  The joined system $A \lor B$ is the smallest system that is bigger than both $A$ and $B$.
+    \item The possibility of a generative effect is captured in the inequality $\phi(A) \lor \phi(B) \leq \phi(A \lor B)$, where $\phi$ was defined \href{doc/1 math/Seven Sketches in Compositionality/1 Generative Effects/1 More than the sum of their parts/1 A first look at generative effects|reference}{earlier}.
+    \item There was a generative effect because there exist systems violate this (both are individually false for $\phi$ but not when put together).
+    \item $\phi$ preserves order but not \emph{join}
+  \end{itemize}
