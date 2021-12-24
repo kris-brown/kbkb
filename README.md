@@ -29,6 +29,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
     - TEX *could* specify nondefault LaTeX options
 
 ## TODO
+- LaTeX errors are silent: prefer to fail noisily rather than just have blank space in final result
 - Content: Brandom lectures, math textbooks
 - Make more path-related things case-insensitive
 - Automatically detect broken links

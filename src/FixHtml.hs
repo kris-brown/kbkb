@@ -105,9 +105,9 @@ nospace = T.filter (not . isSpace)
 
 -- Given an id for a summary and its color, get a pattern to replace
 colorReps :: (Text, Text) -> (Text,Text)
-colorReps (sid, scolor) =  ("summary " <> idstr, "summary " <> scolor <> idstr)
-  where idstr = "id=\"" <> sid -- <> ".html"
-
+colorReps (sid, scolor) = res
+  where idstr = "id=\"" <> sid <> "\"" -- <> ".html"
+        res = ("summary " <> idstr, "summary " <> scolor <> idstr)
 -- Backlinks used to generate additional replacements
 -- Colordict used to add color to summary elements.
 reps::Text -> Map Text [(Text, Text)] -> Map Text Text -> [(Text,Text)]
