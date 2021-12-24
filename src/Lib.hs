@@ -144,8 +144,8 @@ getColors n@(Sections _ _ ss) = unions $ singleton (processColorName n)
 getColors n@(Notes _ _) = singleton (processColorName n) $ tagToColor $ md n
 
 processColorName :: Section -> Text
-processColorName = toLower . T.filter isAlphaNum . title''
-
+processColorName = toLower . T.filter p . title''
+  where p x = isAlphaNum x || x == '-'
 -- Parse a TOP LEVEL section from directory of tex files
 getSections :: FilePath -> IO Section
 getSections fp = do
@@ -222,9 +222,7 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     let pdcmd = "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
       \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
       \--lua-filter=src/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
-    putStrLn $ "pdcmd " <> pdcmd
     _ <- system pdcmd
-    putStrLn  "DONE"
 
     -- move generated figures to site/img/
     pngs <- filter (\p -> drop (length p - 4) p == ".png") <$> listDirectory "."
