@@ -8,7 +8,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - `stack build --exec "kbkb <FLAGS>"` to compile and run
   - flag `gen` populates `site/`
   - flag `sync` ssh copies `site/` to where the website is hosted
-  - flag `pdf` will generate pdfs
+  - flag `pdf` will generate pdfs (currently broken)
   - flag `clear` will wipe out the local and remote `site/` folders
 
 ### Caveats
@@ -24,9 +24,8 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - List of other pages that link to the current page
   - Go back to the specific part that linked it
   - Optionally include a description of the context of the link
-- keyword parsing at the top (TAGS, TEX)
-    - TAGS like "def" / "exercise" (currently used to color the section)
-    - TEX *could* specify nondefault LaTeX options
+- keyword parsing at the top (`% TAG _` in top line of file)
+    - Tags like "Def" / "Exercise" used to color the section
 
 ## TODO
 - LaTeX errors are silent: prefer to fail noisily rather than just have blank space in final result
@@ -43,7 +42,6 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - mouseover delay 1 second (so it doesn't pop up immediately) and better placement of the pop up.
 - Make the LaTeX compilation more parameterized (possibly with a TEX metadatum)
 - Better document the code
-- Performance improvement of how the site functions?
 - Integrate automatic flashcard generation from source
 - Modify the regex that operates on internal links so that it matches even when there is no comment (separated by `|`), that way, we add the `.html` even in the other case (needed when linking to a non-leaf-node of the directory tree).
 ## Inspirations

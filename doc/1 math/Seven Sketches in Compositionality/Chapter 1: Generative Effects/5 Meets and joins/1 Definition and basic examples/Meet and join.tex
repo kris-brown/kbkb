@@ -1,0 +1,18 @@
+% TAG Def
+
+For a preorder $(P, \leq)$, the \emph{meet} and \emph{join} of $A \subseteq P$.
+
+\begin{itemize}
+    \item The meet $\wedge A$ is an element such that
+          \begin{itemize}
+            \item $\forall a \in A: \wedge A \leq a$
+            \item $\forall q \in P: (\forall a \in A: q \leq a) \implies q \leq \wedge A$
+            \item Think of as a GREATEST LOWER BOUND
+          \end{itemize}
+    \item The join $\vee A$ is an element such that
+          \begin{itemize}
+            \item $\forall a \in A: a \leq \vee A$
+            \item $\forall q \in P: (\forall a \in A: a \leq q) \implies \vee A \leq q$
+            \item Think of as a LEAST UPPER BOUND
+          \end{itemize}
+  \end{itemize}
