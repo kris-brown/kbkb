@@ -162,8 +162,8 @@ getSections fp = do
         let nonintros = sortOn title unordNonIntro
         return $ Sections (pack fp) intro nonintros)
    where
-         isIntro x = title' x == dropDigitSpace ( last (
-           splitOn "/" $ pack fp))
+         isIntro x = toLower (title' x) == toLower (dropDigitSpace ( last (
+           splitOn "/" $ pack fp)))
 
 
 latexBody :: Int -> Section -> Text
@@ -209,6 +209,7 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     -- Set up temporary directory and make a directory in site/
     tmpdir <- (<> t) <$> getTemporaryDirectory
     createDirectoryIfMissing True tmpdir
+
     when (isSect s) (createDirectoryIfMissing True $ "site/" <> t)
     let tmppth = tmpdir <> "/" <> t'
 
@@ -221,7 +222,9 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     let pdcmd = "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
       \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
       \--lua-filter=src/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
+    putStrLn $ "pdcmd " <> pdcmd
     _ <- system pdcmd
+    putStrLn  "DONE"
 
     -- move generated figures to site/img/
     pngs <- filter (\p -> drop (length p - 4) p == ".png") <$> listDirectory "."

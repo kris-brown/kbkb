@@ -12,7 +12,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
   - flag `clear` will wipe out the local and remote `site/` folders
 
 ### Caveats
-- Don't use unicode, apostrophes, slashes in titles of files
+- Don't use unicode, apostrophes, periods, slashes in titles of files (so do `Exercise 1-1`, rather than `Exercise 1.1`)
 - Leading digits of file titles are stripped (these are just used to order)
 
 ## DONE
@@ -32,7 +32,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - Content: Brandom lectures, math textbooks
 - Make more path-related things case-insensitive
 - Automatically detect broken links
-- Automatically verify no unicode, apostrophes, slashes in titles of files
+- Automatically verify no unicode, periods, apostrophes, slashes in titles of files
 - Cache hash of tex before computing pdf, check before recomputing
 - move buttons to a header
 - 'Home page' (with overall ToC, search bar, references, ABOUT, filters)

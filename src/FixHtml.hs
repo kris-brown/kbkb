@@ -156,14 +156,14 @@ fixPth s = unpack $ intercalate "/" splt
 fixHtml :: Text -> Map Text [(Text, Text)] -> Map Text Text ->
             FilePath -> Maybe FilePath -> IO ()
 fixHtml name bkLnks colorDict fp' tgt =
-  do copyFile fp $ tmp 0
+  do pure ()--copyFile fp $ tmp 0
      d <- readFile def fp
      writeFile def (tmp 1) (procc d)
      txt <- P.readFile (tmp 1)
      let regmod = pack $ mapNonAscii appRegs txt
-     P.writeFile (tmp 2) $ unpack regmod -- post regex version
+     --P.writeFile (tmp 2) $ unpack regmod -- post regex version
      let intLnk = fixInternalLinks regmod
-     P.writeFile (tmp 3) $ unpack intLnk -- post regex version
+     --P.writeFile (tmp 3) $ unpack intLnk -- post regex version
      let repmod = foldl (\h (n,r) -> replace n r h) intLnk $ rs
      length txt `seq` P.writeFile (fromMaybe fp tgt) $ unpack repmod
   where tmp i = take (length fp - 5) fp <> "._" <> show i <> ".html"

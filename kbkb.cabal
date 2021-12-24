@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fee46f8fb0320b06d356bf30fe7de906df212996330ab3e6fe332feb2b105dc3
+-- hash: 56226beafd3ddfc1497706783bad1adc2b175ba468b9abb545561cc8ec778898
 
 name:           kbkb
 version:        0.1.0.0
@@ -19,7 +19,6 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
 
 source-repository head
   type: git
