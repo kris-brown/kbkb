@@ -41,3 +41,9 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - Make the LaTeX compilation more parameterized (possibly with a TEX metadatum)
 - Better document the code
 - Performance improvement of how the site functions?
+- Integrate automatic flashcard generation from source
+
+## Inspirations
+- [Workflowy](https://www.workflowy.com/features/) / [Nested](https://orteil.dashnet.org/nested)
+- [Stacks project](https://stacks.math.columbia.edu/)
+- [Maddox's personal website](https://maddo.xxx/)

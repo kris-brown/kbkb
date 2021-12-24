@@ -125,7 +125,13 @@ reps name bklinks colorDict =  (colorReps <$> toList colorDict) ++
   -- Some things get mangled by Text.XML, fix them:
   ("li &gt; ol, li &gt; ul", "li > ol, li > ul"),
   ("&#39;Lucida Console&#39;","'Lucida Console'"),
-  ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>", "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
+  -- Change font
+  ("line-height: 1.5;", "line-height: 1.5;\n      font-family: \"Caslon Pro\", \"Georgia\", serif !important;"),
+  ("margin: 0 auto;", "margin: 0 auto;\n      font-family: \"Caslon Pro\", \"Georgia\", serif !important;"),
+  ("margin-top: 1.4em;", "margin-top: 1.4em;\n      font-family: \"Caslon Pro\", \"Georgia\", serif !important;"),
+  -- Add </script>
+  ("<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/>",
+   "<script src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js\" type=\"text/javascript\"/></script>")]
 
 fixInternalLinks:: Text -> Text
 fixInternalLinks x = intercalate delim $ head chunks : (f <$> tail chunks)
@@ -167,9 +173,9 @@ fixHtml name bkLnks colorDict fp' tgt =
 -- Make an EMPTY summary element from a header element
 det :: Node ->Element
 det i@(NodeElement (Element _ a [NodeContent b])) = documentRoot $ parseText_ def $
-  LZ.fromStrict $ "<details id=\"" <> hid <>
-    "\" open=\"open\">\n" <>
-    "<summary id=\"" <> hid <> "\"> <strong>" <>
+  LZ.fromStrict $ "<details id=\"" <> hid <> "\" " <>
+    --" open=\"open\"" <>  -- UNCOMMENT IF YOU WANT SECTIONS TO START OPEN
+    ">\n" <> "<summary id=\"" <> hid <> "\"> <strong>" <>
     "<a href=\"" <> nospace (fixPth' hurl) <>"\">" <> hname <> "</a>\n" <> "</strong>\n" <>
     "</summary>" <> "\n<div id=\"" <> hid <> "\"></div></details>\n"
   where hid = a ! "id"

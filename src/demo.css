@@ -4,6 +4,7 @@ html, body
 	background:#fff;
 	color:#000;
 	font-size:100%;
+	font-family: "Caslon Pro", "Georgia", serif;
 }
 body
 {
@@ -67,4 +68,54 @@ details div[aria-expanded="false"]
 details div p
 {
 	margin:0;
+}
+
+/* latin */
+@font-face {
+font-family: "Caslon Pro";
+font-weight: 400;
+font-style: normal;
+src: url("https://maddo.xxx/assets/CaslonPro-Regular.woff")
+	format("woff");
+unicode-range: U+0-7F, U+A0, U+200A, U+2014, U+2018, U+2019, U+201C,
+	U+201D, U+2022, U+2026;
+}
+
+@font-face {
+font-family: "Caslon Pro";
+font-weight: 400;
+font-style: italic;
+src: url("https://maddo.xxx/assets/CaslonPro-Italic.woff")
+	format("woff");
+unicode-range: U+0-7F, U+A0, U+200A, U+2014, U+2018, U+2019, U+201C,
+	U+201D, U+2022, U+2026;
+}
+
+@font-face {
+font-family: "Caslon Pro";
+font-weight: 500;
+font-style: normal;
+src: url("https://maddo.xxx/assets/CaslonPro-SemiBold.woff")
+	format("woff");
+unicode-range: U+0-7F, U+A0, U+200A, U+2014, U+2018, U+2019, U+201C,
+	U+201D, U+2022, U+2026;
+}
+
+@font-face {
+font-family: "Caslon Pro";
+font-weight: 700;
+font-style: normal;
+src: url("https://maddo.xxx/assets/CaslonPro-Bold.woff") format("woff");
+unicode-range: U+0-7F, U+A0, U+200A, U+2014, U+2018, U+2019, U+201C,
+	U+201D, U+2022, U+2026;
+}
+
+@font-face {
+font-family: "Caslon Pro";
+font-weight: 700;
+font-style: italic;
+src: url("https://maddo.xxx/assets/CaslonPro-BoldItalic.woff")
+	format("woff");
+unicode-range: U+0-7F, U+A0, U+200A, U+2014, U+2018, U+2019, U+201C,
+	U+201D, U+2022, U+2026;
 }
