@@ -114,6 +114,7 @@ reps name bklinks colorDict =  (colorReps <$> toList colorDict) ++
   ((\x->(x, nospace x)) <$> keys bklinks) ++ [
   ("</body>", makeBacklinks $ findWithDefault [] name bklinks),
   ("img src=\"", "img src=\""<>root<>"img/"),
+  ("src=\"img/", "src=\"" <> root <> "img/"), -- images from \includegraphics
   ("href=\"doc", "href=\"" <> root <> "doc"),
   ("src=\"doc", "src=\"" <> root <> "doc"),
   ("role=\"doc-bibliography\">", "role=\"doc-bibliography\"><strong>Bibliography</strong><br>"),
