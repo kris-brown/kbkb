@@ -1,6 +1,6 @@
 % TAG Example
 \begin{itemize}
-    \item  Pulling back data along a \hyperref[D3.35]{functor}
+    \item  Pulling back data along a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor}
     \item We'll migrate data between the graph-indexing schema \textbf{Gr} and the loop schema, called \textbf{DDS} (for discrete-dynamical system).
     \item We'll write down an example instance $\mathbf{DDS}\xrightarrow{I}\mathbf{Set}$
   \end{itemize}
@@ -22,10 +22,10 @@
 
   \begin{itemize}
     \item  We want to convert this state information into a graph that will let us visualize our machine.
-    \item Use the following \hyperref[D3.35]{functor} $F$: $\begin{tikzcd}\overset{Arr}\bullet \arrow[red,d, "tar", bend left] \arrow[blue,d, "src"', bend right] &\overset{State}\bullet \arrow[red, loop below, "next"] \\\overset{Vert}\bullet&\end{tikzcd}$
+    \item Use the following \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor} $F$: \begin{tikzcd}\overset{Arr}\bullet \arrow[red,d, "tar", bend left] \arrow[blue,d, "src"', bend right] &\overset{State}\bullet \arrow[red, loop below, "next"] \\\overset{Vert}\bullet&\end{tikzcd}
           \begin{itemize}
             \item \emph{src} is sent to identity
-            \item Can now generate a graph using the composite \hyperref[D3.35]{functor} $\mathbf{Gr}\xrightarrow{F}\mathbf{DDS}\xrightarrow{I}\mathbf{Set}$
+            \item Can now generate a graph using the composite \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor} $\mathbf{Gr}\xrightarrow{F}\mathbf{DDS}\xrightarrow{I}\mathbf{Set}$
           \end{itemize}
   \end{itemize}
 
@@ -46,7 +46,7 @@
   $Vert = \bar{7}$
 
   \begin{itemize}
-    \item  We can now draw the graph: \,$\begin{tikzcd}& 1 \arrow[rd] && 2 \arrow[ld]&\\3 \arrow[rd] && 4 \arrow[ld] &&\\& 5&& 6 \arrow[r, bend left] & 7 \arrow[l, bend left]\end{tikzcd}$\,
-    \item This procecure can be called ``pulling back data along a \hyperref[D3.35]{functor}". We pulled back data $I$ along functor $F$ (via functor composition).
+    \item  We can now draw the graph: \,\begin{tikzcd}& 1 \arrow[rd] && 2 \arrow[ld]&\\3 \arrow[rd] && 4 \arrow[ld] &&\\& 5&& 6 \arrow[r, bend left] & 7 \arrow[l, bend left]\end{tikzcd}\,
+    \item This procecure can be called ``pulling back data along a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor}". We pulled back data $I$ along functor $F$ (via functor composition).
 
   \end{itemize}

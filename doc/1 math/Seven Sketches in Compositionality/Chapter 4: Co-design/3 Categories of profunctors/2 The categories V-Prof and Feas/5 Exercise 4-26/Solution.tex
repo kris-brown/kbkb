@@ -1,0 +1,15 @@
+
+    \begin{tikzcd}
+      & A \arrow[ld, "3"', bend right] \arrow[rd, "2", bend left] & & & A \arrow[ld, bend right] \arrow[rd, bend left] &   \\
+      B \arrow[rd, "4", bend right] \arrow[rr, "1"] & & D  & B \arrow[rd, bend right] \arrow[rr] & & D \\
+      & C \arrow[ru, "1"', bend right] & & & C \arrow[ru, bend right] &
+    \end{tikzcd}
+
+    becomes \,
+
+    \begin{tikzcd}
+      & A \arrow[ld, "3"', bend right] \arrow[rd, "2", bend left] \arrow[rrr, blue,"0", dotted] &                                       &                                     & A \arrow[ld, bend right] \arrow[rd, bend left] &   \\
+      B \arrow[rd, "4", bend right] \arrow[rr, "1"] \arrow[rrr, "0"', blue, dotted, bend right] &                                                                                    & D \arrow[rrr, "0", dotted, blue,bend left] & B \arrow[rd, bend right] \arrow[rr] &                                                & D \\
+      & C \arrow[ru, "1"', bend right] \arrow[rrr, "0", blue, dotted]                            &                                       &                                     & C \arrow[ru, bend right]                       &
+    \end{tikzcd}
+  \,

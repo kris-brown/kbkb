@@ -1,0 +1,31 @@
+Each box in a codesign problem has a list of preorders on the LHS and another list on the right.
+
+\begin{tikzpicture}
+  \begin{pgfonlayer}{nodelayer}
+    \node [style=0.75x1] (0) at (-2.75, 1) {Chassis};
+    \node [] (13) at (-1.5, 0.25) {};
+    \node [] (14) at (-1.5, 1) {};
+    \node [] (15) at (-1.5, 1.75) {};
+    \node [] (16) at (0.5, 1) {};
+    \node [] (17) at (0.5, 1.75) {};
+    \node [] (18) at (-4, 1.75) {};
+    \node [] (19) at (-4, 0.75) {};
+    \node [] (43) at (-0.5, 2) {\tiny{Torque}};
+    \node [] (44) at (-0.5, 1.25) {\tiny{Speed}};
+    \node [] (45) at (-0.5, 0.5) {\textdollar};
+    \node [] (49) at (-5, 2.25) {\tiny{Weight}};
+    \node [] (50) at (-5.5, 1.75) {};
+    \node [] (51) at (-5.5, 0.75) {};
+    \node [] (52) at (0.5, 0.25) {};
+    \node [] (53) at (-5, 1) {\tiny{Velocity}};
+  \end{pgfonlayer}
+  \begin{pgfonlayer}{edgelayer}
+    \draw [in=180, out=0] (14.center) to (16.center);
+    \draw (15.center) to (17.center);
+    \draw (13.center) to (52.center);
+    \draw (19.center) to (51.center);
+    \draw (50.center) to (18.center);
+  \end{pgfonlayer}
+\end{tikzpicture}
+
+The box represents a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 4: Co-design/2 Enriched profunctors/1 Feasibility relationships as Bool-profunctors/1 Feasilibiliy relation}{feasibility relation}: $Load \times Velocity \nrightarrow Torque \times Speed \times \$$

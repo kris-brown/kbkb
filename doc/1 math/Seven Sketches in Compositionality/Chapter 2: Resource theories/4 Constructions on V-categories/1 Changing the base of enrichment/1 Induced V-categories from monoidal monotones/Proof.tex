@@ -1,22 +1,22 @@
 \begin{itemize}
     \item Take the same objects: $Ob(\mathcal{C}_f):=Ob(\mathcal{C})$
     \item $\mathcal{C}_f(a,b) := f(\mathcal{C}(a,b))$
-    \item Check this obeys the definition of an \hyperref[D2.46]{enriched category}:
+    \item Check this obeys the definition of an \href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/3 Enrichment/1 V-categories/1 V-category}{enriched category}:
           \begin{itemize}
             \item Condition on the monoidal unit:
                   \begin{enumerate}
-                    \item $I_W \leq f(I_V)$ --- from the first condition of a \hyperref[D2.41]{monoidal monotone map}.
-                    \item $\forall c \in Ob(\mathcal{C}): I_V \leq \mathcal{C}(c,c)$ --- first condition of an \hyperref[D2.46]{enriched category}, which $\mathcal{C}$ is
-                    \item $\forall c \in Ob(\mathcal{C}):f(I_V) \leq f(\mathcal{C}(c,c))$ --- \hyperref[D1.59]{monotone map} property
+                    \item $I_W \leq f(I_V)$ --- from the first condition of a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/2 Symmetric monoidal preorders/5 Monoidal monotone maps/1 Monoidal monotone}{monoidal monotone map}.
+                    \item $\forall c \in Ob(\mathcal{C}): I_V \leq \mathcal{C}(c,c)$ --- first condition of an \href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/3 Enrichment/1 V-categories/1 V-category}{enriched category}, which $\mathcal{C}$ is
+                    \item $\forall c \in Ob(\mathcal{C}):f(I_V) \leq f(\mathcal{C}(c,c))$ --- \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/4 Monotone maps/1 Monotone map}{monotone map} property
                     \item $\forall c \in Ob(\mathcal{C}):f(I_V) \leq \mathcal{C}_f(c,c)$ --- definition of $\mathcal{C}_f$
                     \item $\forall c \in Ob(C_f): I_W \leq C_f(c,c)$ --- transitivity, using 1 and 4, noting $Ob(\mathcal{C})=Ob(\mathcal{C}_f)$
                   \end{enumerate}
             \item Condition on monoidal product:
                   \begin{enumerate}
                     \item $\mathcal{C}_f(c,d) \otimes_W \mathcal{C}_f(d,e) = f(\mathcal{C}(c,d)) \otimes_W f(\mathcal{C}(d,e))$ --- definition of $\mathcal{C}_f$
-                    \item $f(\mathcal{C}(c,d)) \otimes_W f(\mathcal{C}(d,e)) \leq f(\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e))$  --- second condition of a \hyperref[D2.41]{monoidal monotone map}
-                    \item $\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e) \leq \mathcal{C}(c,e)$ --- Second condition of an \hyperref[D2.46]{enriched category}
-                    \item $f(\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e)) \leq f(\mathcal{C}(c,e)$ --- \hyperref[D1.59]{monotone map} property
+                    \item $f(\mathcal{C}(c,d)) \otimes_W f(\mathcal{C}(d,e)) \leq f(\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e))$  --- second condition of a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/2 Symmetric monoidal preorders/5 Monoidal monotone maps/1 Monoidal monotone}{monoidal monotone map}
+                    \item $\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e) \leq \mathcal{C}(c,e)$ --- Second condition of an \href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/3 Enrichment/1 V-categories/1 V-category}{enriched category}
+                    \item $f(\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e)) \leq f(\mathcal{C}(c,e)$ --- \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/4 Monotone maps/1 Monotone map}{monotone map} property
                     \item $f(\mathcal{C}(c,d) \otimes_V \mathcal{C}(d,e)) \leq \mathcal{C}_f(c,e)$ --- definition of $\mathcal{C}_f$
                     \item $\mathcal{C}_f(c,d) \otimes_W \mathcal{C}_f(d,e) \leq \mathcal{C}_f(c,e)$ --- transitivity, 1,2 and 5
                   \end{enumerate}

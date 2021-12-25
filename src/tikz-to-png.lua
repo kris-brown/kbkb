@@ -15,6 +15,19 @@ function RawBlock(el)
     f:write("\\documentclass{standalone}\n")
     -- include all packages needed to compile your images
     f:write("\\usepackage{tikz}\n\\usepackage{tikz-cd}\n\\usepackage{amsmath}\n\\usepackage{amssymb}\n\\usepackage{mathrsfs}\n\\usepackage{mathtools}\n\\usepackage{stanli}\n")
+    f:write([[\usetikzlibrary{arrows}
+    \usetikzlibrary{backgrounds}
+    \usetikzlibrary{shapes,shapes.geometric,shapes.misc}
+    \tikzstyle{tikzfig}=[baseline=-0.25em,scale=0.5]
+    \tikzstyle{0.75x1}=[fill=white, draw=black, shape=rectangle, minimum width=0.75cm, minimum height=1cm]
+    \tikzstyle{0.25x0.5}=[fill=white, draw=black, shape=rectangle, minimum width=0.25cm, minimum height=0.5cm]
+    \tikzstyle{10x5}=[draw=black, shape=rectangle, minimum width=20cm, minimum height=10cm]
+    \tikzstyle{blue pointer}=[->, draw=blue]
+    \tikzstyle{dashed edge}=[<->, dashed]
+    \pgfdeclarelayer{nodelayer}
+    \pgfdeclarelayer{edgelayer}
+    \pgfsetlayers{background,edgelayer,nodelayer,main}
+    ]])
     f:write([[\tikzset{
       %Define standard arrow tip
       >=stealth',

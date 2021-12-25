@@ -1,0 +1,58 @@
+% TAG Example
+\begin{itemize}
+    \item Need a formula for composing two \href{doc/1 math/Seven Sketches in Compositionality/Chapter 4: Co-design/2 Enriched profunctors/1 Feasibility relationships as Bool-profunctors/1 Feasilibiliy relation}{feasibility relations} in series.
+    \item Suppose $P,Q,R$ are cities (preorders) and there are bridges (hence, \href{doc/1 math/Seven Sketches in Compositionality/Chapter 4: Co-design/2 Enriched profunctors/2 V-profunctors/4 Exercise 4-12}{feasibility matrices}).
+    \item
+          \begin{tikzcd}
+            & N \arrow[rrrrdd, blue, dotted, bend left]                      &                                             &                                             & e                                                       &   &   \\
+            W \arrow[ru] \arrow[rrrd, blue,dotted] &                                                          & E \arrow[lu] \arrow[rru, blue, dotted, bend left] & d \arrow[ru] \arrow[rrr, red,dotted, bend left] &                                                         &   & x \arrow[d] \\
+            & S \arrow[lu] \arrow[ru] \arrow[rrrd, blue, dotted, bend right] &                                             & b \arrow[u]                                 &                                                         & c & y \\
+            &                                                          &                                             &                                             & a \arrow[ru] \arrow[lu] \arrow[rru, red, dotted, bend right] &   &
+          \end{tikzcd}
+
+
+    \item The \href{doc/1 math/Seven Sketches in Compositionality/Chapter 4: Co-design/2 Enriched profunctors/2 V-profunctors/4 Exercise 4-12}{feasibility matrices} are:
+
+          \begin{minipage}{0.48\textwidth}
+
+            \begin{tabular}{|l|l|l|l|l|l|}
+              \hline
+              $\textcolor{blue}{\phi}$ & a & b & c & d & e \\ \hline
+              N                        & T & F & T & F & F \\ \hline
+              E                        & T & F & T & F & T \\ \hline
+              W                        & T & T & T & T & F \\ \hline
+              S                        & T & T & T & T & T \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+          \begin{minipage}{0.48\textwidth}
+
+            \begin{tabular}{|l|l|l|}
+              \hline
+              $\textcolor{red}{\psi}$ & x & y \\ \hline
+              a                       & F & T \\ \hline
+              b                       & T & T \\ \hline
+              c                       & F & T \\ \hline
+              d                       & T & T \\ \hline
+              e                       & F & F \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+    \item Feasibility from $P$ to $R$ means there is a way-point in Q which is both reachable from $p \in P$ and can reach $r \in R$.
+    \item Composition is \,a union $(\phi;\psi)(p,r):= \bigvee_Q \phi(p,q)\land \psi(q,r)$\,.
+    \item But this is tantamount to \,\href{doc/1 math/Seven Sketches in Compositionality/Chapter 2: Resource theories/5 Computing presented V-categories with matrix mult/3 Matrix multiplication in a quantale/1 Quantale matrix}{matrix multiplication}\, which gives us the result matrix:
+
+
+          \begin{minipage}{0.48\textwidth}
+
+            \begin{tabular}{|l|l|l|}
+              \hline
+              $\phi;\psi$ & x & y \\ \hline
+              N           & F & T \\ \hline
+              E           & F & T \\ \hline
+              W           & T & T \\ \hline
+              S           & T & T \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+  \end{itemize}

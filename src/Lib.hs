@@ -161,7 +161,9 @@ getSections fp = do
     (do children' <- fmap ((fp <> "/") <>) <$> listDirectory fp
         children <- sequence $ getSections <$> children'
         let intros = filter isIntro children
-        let intro = if' (null intros) "" (nbody $ head intros)
+        let intro = if' (null intros) "" (case head intros of
+                                          (Notes _ x) -> x
+                                          (Sections n _ _) -> trace (show n) "")
         let unordNonIntro = filter (not . isIntro ) children
         let nonintros = sortOn title unordNonIntro
         return $ Sections (pack fp) intro nonintros)

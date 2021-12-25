@@ -1,8 +1,8 @@
 % TAG Def
-A \emph{natural transformation} $F \overset{a}\Rightarrow G$ between two \hyperref[D3.35]{functors} (going from $\mathcal{C}$ to $\mathcal{D}$).
+A \emph{natural transformation} $F \overset{a}\Rightarrow G$ between two \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functors} (going from $\mathcal{C}$ to $\mathcal{D}$).
 
 \begin{itemize}
     \item For each object $c \in \mathcal{C}$, one specifies a morphism $F(c)\xrightarrow{\alpha_c}G(c)$ in $\mathcal{D}$ called the \emph{c-component of} $\alpha$
     \item These components must satisfy the \emph{naturality condition}: for each morphism $c \xrightarrow{f} d$ in $\mathcal{C}$ we need $F(f);\alpha_d=\alpha_c;G(f)$
-    \item AKA this diagram should commute: $\begin{tikzcd}F(c) \arrow[r, "\alpha_c"] \arrow[d, "F(f)"'] & G(c)\arrow[d, "G(f)"] \\F(d) \arrow[r, "\alpha_d"']& G(d)\end{tikzcd}$
+    \item AKA this diagram should commute: \begin{tikzcd}F(c) \arrow[r, "\alpha_c"] \arrow[d, "F(f)"'] & G(c)\arrow[d, "G(f)"] \\F(d) \arrow[r, "\alpha_d"']& G(d)\end{tikzcd}
   \end{itemize}

@@ -1,0 +1,11 @@
+\begin{itemize}
+    \item Each object is the n-fold monoidal product of the generating object $1$.
+    \item To specify a prop $P$ it is enough to specify 5 things (and check they satisfy the rules for symmetric monoidal categories):
+          \begin{enumerate}
+            \item A set $\mathcal{C}(m,n))$ of morphisms $m \rightarrow n$ for $m,n \in \mathbb{N}$.
+            \item For all naturals, an identity map $n \xrightarrow{id_n} n$
+            \item For all $m,n \in \mathbb{N}$, a symmetry map $m+n \xrightarrow{\sigma_{m,n}} n+m$
+            \item A composition rule: given $m \xrightarrow f n$ and $n \xrightarrow g p$, a map $m \xrightarrow{f;g} p$
+            \item A monoidal product on morphisms: given $m \xrightarrow f m'$ and $n \xrightarrow g n'$, a map $m+n \xrightarrow{f+g} m' +n'$
+          \end{enumerate}
+  \end{itemize}

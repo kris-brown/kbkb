@@ -1,0 +1,23 @@
+\begin{enumerate}
+    \item Done, see the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 4: Co-design/3 Categories of profunctors/2 The categories V-Prof and Feas/4 Unitality of unit profunctor}{proof}
+    \item
+          \begin{itemize}
+            \item $\forall p: P(p,p)=true$ for a \textbf{Bool}-enriched category, because that is the only option for $I=true\leq P(p,p)$
+                  \begin{itemize}
+                    \item $true \land x = x$
+                  \end{itemize}
+            \item If $\phi(p,q)$:
+                  \begin{itemize}
+                    \item then at least one element of the set being joined over is true (where $p=p'$ such that $P(p,p')\land \phi(p',q) = true$), and the least upper bound of such a set is $true$
+                  \end{itemize}
+            \item Else:
+                  \begin{itemize}
+                    \item Then every element of that set is $false$ such that the join is also $false$.
+                          \begin{itemize}
+                            \item If $p\leq p'$, it fails because of the second conjunct (consider the constraint on profunctors: we are demanding equal or more resources than something we know fails)
+                            \item If $p \not \leq p'$, it fails because of the first conjunct. In a \textbf{Bool}-category $P$, $P(a,b)$ iff $a \leq b$.
+                          \end{itemize}
+                  \end{itemize}
+          \end{itemize}
+
+  \end{enumerate}
