@@ -1,0 +1,11 @@
+\begin{enumerate}
+    \item   This is true: there are no choices to be made for a \hyperref[D3.49]{natural transformation}, given that for each morphism $c\rightarrow d$ in $\mathcal{C}$ we have to pick \,$\alpha_c$ to be \textbf{the} morphism $F(c)\rightarrow G(c)$\, and \,$\alpha_{d}$ to be \textbf{the} morphism $F(d)\rightarrow G(d)$\,.
+    \item Counterexample: $\begin{tikzcd}\underline{\mathcal{C}}&\underline{\mathcal{P}}\\2&b\\1 \arrow[u, "x", bend left] \arrow[u, "y"', bend right] &a \arrow[u, "f"]\end{tikzcd}$
+          \begin{itemize}
+            \item let $F$ send $f\mapsto x,a\mapsto1,b\mapsto 2$ and $G$ maps everything to $2$
+            \item The naturality condition for \emph{f} leaves us with two choices for \,$\alpha_a$
+
+                  $\begin{tikzcd}F(a)=1 \arrow[d, "F(f)=x"'] \arrow[r, "{\alpha_a \in \{x,y\}}"] & G(a)=2 \arrow[d, "G(f)=id_2"] \\F(y)=2 \arrow[r, "{\alpha_b=id_2}"'] & G(b)=2 \end{tikzcd}$\,
+          \end{itemize}
+
+  \end{enumerate}

@@ -2,11 +2,11 @@
     \item  Let's abbreviate $f(a\ \lor_P\ b)$ as $JF$ (join-first) and $f(b)\ \lor_Q\  f(a)$ as $JL$ (join-last)
           \begin{itemize}
             \item This exercise is to show that $JL \leq JF$\end{itemize}
-    \item The property of \hyperref[D1.81]{joins} gives us, in $P$, that \,$a\ \leq\ (a \lor b)$ and $b\ \leq\ (a \lor b)$\,
+    \item The property of \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meet and join}{joins} gives us, in $P$, that \,$a\ \leq\ (a \lor b)$ and $b\ \leq\ (a \lor b)$\,
           \begin{itemize}
             \item Monotonicity then gives us, in $Q$, that \,$f(a) \leq JF$ and $f(b) \leq JF$\,
           \end{itemize}
-    \item We also know from the property of \hyperref[D1.81]{joins}, in $Q$, that \,$f(a) \leq JL$ and $f(b) \leq JL$\,
+    \item We also know from the property of \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meet and join}{joins}, in $Q$, that \,$f(a) \leq JL$ and $f(b) \leq JL$\,
     \item The only way that $JF$ could be strictly smaller than $JL$, given that both are $\geq f(a)$ and $\geq f(b)$ is for \,$f(a) \leq JF < JL$\, and  \,$f(b) \leq JF < JL$\,
     \item But, $JL \in Q$ is \,the smallest thing (or equal to it) that is greater than $f(a)$ and $f(b)$\,, so this situation is not possible.
   \end{itemize}

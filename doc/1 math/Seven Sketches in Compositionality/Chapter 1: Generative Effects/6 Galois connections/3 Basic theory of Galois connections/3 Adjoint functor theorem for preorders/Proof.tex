@@ -1,0 +1,25 @@
+\begin{itemize}
+    \item Given a right adjoint, construct the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} by:
+          \begin{itemize}
+            \item $f(p) := \bigwedge\{q \in Q\ |\ p \leq g(q)\}$
+            \item First need to show this is \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/4 Monotone maps/1 Monotone map}{monotone}:
+                  \begin{itemize}
+                    \item If $p \leq p'$, the relationship between the joined sets of $f(p)$ and $f(p')$ is \,that the latter is a subset of the former.\,
+                    \item By \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meets of subsets}{Proposition 1.91} we infer that $f(p) \leq f(p')$.
+                  \end{itemize}
+            \item Then need to show that it is satisfies the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} property:
+                  \begin{itemize}
+                    \item Show that $p_0 \leq g(f(p_0))$
+                          \begin{itemize}
+                            \item  $p_0 \leq \bigwedge \{g(q)\ |\ p_0 \leq g(q)\} \cong g(\bigwedge\{q\ |\ p_0 \leq g(q)\}) = g(f(p_0))$
+                            \item The first inequality comes from the fact that \,the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meet and join}{meet} of the set (of which $p_0$ is a lower bound) is a greatest lower bound\,.
+                            \item The congruence comes from the fact that \,\href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{right adjoints} preserve \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meet and join}{meets}\,.
+                          \end{itemize}
+                    \item Show that $f(g(q_0)) \leq q_0$
+                          \begin{itemize}
+                            \item $f(g(q_0)) = \bigwedge\{q\ |\ g(q_0) \leq g(q)\} \leq \bigwedge \{q_0\} = q_0$
+                            \item The first inequality comes from \,\href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meets of subsets}{Proposition 1.91} since $\{q_0\}$ is a subset of the first set\,.
+                            \item The second equality is \,a property of the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/5 Meets and joins/1 Definition and basic examples/Meet and join}{meet} of single element sets\,.                \end{itemize}
+                  \end{itemize}              \end{itemize}
+    \item Proof of a left adjoint construction (assuming it preserves joins) is dual.      \end{itemize}
+

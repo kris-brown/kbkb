@@ -1,0 +1,11 @@
+Given $\mathcal{C}\xrightarrow{F}\mathcal{D}$, the data migration functor $\Delta_F$ turns $\mathcal{D}$ instances to $\mathcal{C}$ instances. This functor has both a left and right adjoint: $\begin{tikzcd}\mathcal{C}Inst \arrow[rr, "\Sigma_F", bend left] &  & \mathcal{D}Inst \arrow[ll, "\Delta_F"description] \arrow[ll, "\Pi_F", bend left]\end{tikzcd}$
+
+\begin{minipage}{0.48\textwidth}
+  \begin{tabular}{|l|l|l|l|}
+    \hline
+    Migration Functor & Pronounced & Reminiscent of       & Database idea                          \\ \hline
+    $\Delta$          & Delta      & Duplicate or destroy & Duplicate or destroy tables or columns \\ \hline
+    $\Sigma$          & Sigma      & Sum                  & Union (sum up) data                    \\ \hline
+    $\Pi$             & Pi         & Product              & Pair and query data                    \\ \hline
+  \end{tabular}
+\end{minipage}

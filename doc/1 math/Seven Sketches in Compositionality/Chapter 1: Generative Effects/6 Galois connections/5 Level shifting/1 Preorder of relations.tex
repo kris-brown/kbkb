@@ -1,0 +1,12 @@
+% TAG Example
+
+\begin{itemize}
+    \item `Level shifting'
+    \item Given any set $S$, there is a set $\mathbf{Rel}(S)$ of \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/2 What is order/Relation}{binary relations} on $S$ (i.e. \,$\mathbb{P}(S \times S)$\,)
+    \item This power set can be given a preorder structure using the \,subset relation\,.
+    \item A subset of possible relations satisfy the axioms of preorder relations. $\mathbf{Pos}(S) \subseteq \mathbb{P}(S \times S)$ which again inherits a preorder structure from the subset relation
+          \begin{itemize}
+            \item A \,preorder\, on the possible preorder structures of $S$, that's a level shift.
+          \end{itemize}
+    \item The inclusion map $\mathbf{Pos}(S) \hookrightarrow \mathbf{Rel}(S)$ is a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{right adjoint} to a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{Galois connection}, while its \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} is $\mathbf{Rel}(S)\overset{Cl}{\twoheadrightarrow} \mathbf{Pos}(S)$ which takes the \,reflexive and transitive closure\, of an arbitrary relation.
+  \end{itemize}

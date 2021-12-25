@@ -1,0 +1,14 @@
+\begin{itemize}
+    \item Given any function $S \xrightarrow{g} T$, we can induce a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{Galois connection} $Prt(S) \leftrightarrows Prt(T)$ between the sets of partitions of the domain and codomain.
+          \begin{itemize}
+            \item Determine the \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} $Prt(S) \xrightarrow{g_!} Prt(T)$
+                  \begin{itemize}
+                    \item Starting with a given partition in $S$, obtain a partition in $T$ by saying two elements, $t_1,t_2$ are in the same partition if $\exists s_1 \sim s_2: g(s_1)=t_1 \land g(s_2)=t_2$
+                    \item This is not necessarily a transitive relation, so take the transitive closure.
+                  \end{itemize}
+            \item Determine the right adjoint $Prt(T) \xrightarrow{g^*} Prt(S)$
+                  \begin{itemize}
+                    \item Given a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/2 What is order/Partition}{partition} of $T$, we say two elements in $S$ are connected iff $g(s_1) \sim g(s_2)$
+                  \end{itemize}
+          \end{itemize}
+  \end{itemize}

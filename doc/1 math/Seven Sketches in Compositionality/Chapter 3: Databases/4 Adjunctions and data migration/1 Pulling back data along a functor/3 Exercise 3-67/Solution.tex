@@ -1,0 +1,16 @@
+\begin{minipage}{0.48\textwidth}
+
+    \begin{tabular}{|l|l|l|}
+      \hline
+      Arr & src & tar \\ \hline
+      1   & 4   & 1   \\ \hline
+      2   & 4   & 2   \\ \hline
+      3   & 5   & 3   \\ \hline
+      4   & 5   & 4   \\ \hline
+      5   & 5   & 5   \\ \hline
+      6   & 7   & 6   \\ \hline
+      7   & 6   & 7   \\ \hline
+    \end{tabular}
+  \end{minipage}
+
+  \begin{tikzcd}  & 1                       &                         & 2                     &                        \\3 &                         & 4 \arrow[lu] \arrow[ru] &                       &                        \\  & 5 \arrow[lu] \arrow[ru] &                         & 6 \arrow[r, bend left] & 7 \arrow[l,bend left]\end{tikzcd}

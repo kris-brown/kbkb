@@ -1,0 +1,22 @@
+\begin{itemize}
+    \item Our translation is: $\otimes \mapsto \land,\ \leq \mapsto \implies$
+    \item Condition for being closed is then:
+    \item $\forall a,v,w:$ \,$(a \land v) \implies w$ iff $a \implies (v \multimap w)$\,
+    \item On the LHS, we have the truth table:
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|}
+              a & v & w & $(a \land v) \implies w$ \\ \hline
+              F & F & F & T                        \\
+              F & F & T & T                        \\
+              F & T & F & T                        \\
+              F & T & T & T                        \\
+              T & F & F & T                        \\
+              T & F & T & T                        \\
+              T & T & F & F                        \\
+              T & T & T & T
+            \end{tabular}
+          \end{minipage}
+
+    \item In order to define $v \multimap w$ in a way consistent with this, we need it to \emph{only} be false when $v=true, w=false$, which is the truth condition for \,$v \implies w$\,.
+    \item This is consistent with a `single use v-to-w converter' analogy.
+  \end{itemize}

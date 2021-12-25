@@ -1,0 +1,27 @@
+\begin{enumerate}
+    \item
+          \begin{itemize}
+            \item $\forall v \in \mathcal{V}$, we have $0 \otimes v \cong 0$.
+              \begin{itemize}
+              \item $0 \otimes v$
+              \item $\cong v \otimes 0$ -- \,symmetry\,
+              \item $= v \otimes \bigvee_{a \in \varnothing} a$ -- \,definition of $0$\,
+              \item $\cong \bigvee_{a \in \varnothing} v \otimes a$ -- \, $-\otimes x$ preserves joins b/c \hyperref[P2.87]{it is left adjoint}\,
+              \item $= 0$ -- \,definition of 0\,
+            \end{itemize}
+          \item Plug this into definition of matrix multiplication
+          \begin{itemize}
+            \item $I_X * M(x,y)$
+            \item $= \bigvee_{x'}I_x(x,x')\otimes M(x',y)$ -- \,definition of matrix multiplication in a quantale\,
+            \item $=(I_x(x,x)\otimes M(x,y))\vee(\bigvee_{x'\ne x}I_x(x,x')\otimes M(x',y))$ -- \,split join into two cases\,
+            \item $=(I\otimes M(x,y))\vee(\bigvee_{x'\ne x}0\otimes M(x',y))$ -- \,Definition of identity matrix\,
+            \item $=M(x,y)\vee 0$ -- \, join of a singleton set\,
+            \item $=M(x,y)$ -- \,Zero is the least element in $\mathcal{V}$\,
+          \end{itemize}
+        \end{itemize}
+        \item \begin{itemize}
+            \item Need to show $\underset{y \in Y}\bigvee (\underset{x\in X}\bigvee M(w,x)\otimes N(x,y))\otimes P(y,z)$ is the same as $\underset{x \in X}\bigvee M(w,x)\otimes(\underset{y \in Y}\bigvee N(x,y) \otimes P(y,z))$ for all $w \in W,z \in Z$
+            \item The \,associativity\, of $\otimes$ and the fact \,it preserves joins b/c \hyperref[P2.87]{it is left adjoint}\, lets us shift the symbols around appropriately.
+
+       \end{itemize}
+  \end{enumerate}

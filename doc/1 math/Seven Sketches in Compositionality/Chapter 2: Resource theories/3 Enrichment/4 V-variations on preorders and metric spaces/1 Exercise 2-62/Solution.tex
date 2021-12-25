@@ -1,0 +1,26 @@
+\begin{enumerate}
+    \item $\begin{tikzcd}[ampersand replacement=\&]A \arrow[dd, "cf"] \arrow[rr, "cbf"] \arrow[rrdd, "f"]  \&   \& B \arrow[dd, "c"] \\ \&   \&\\C \arrow[rr, "bf"] \&   \& D               \end{tikzcd}$ (implicitly, no path means edge of $\varnothing$ and self paths are $cfb$)
+    \item Hom objects:\,
+
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|l|}
+              \hline
+                & A             & B             & C             & D   \\ \hline
+              A & cbf           & cbf           & cf            & cf  \\ \hline
+              B & $\varnothing$ & cbf           & $\varnothing$ & c   \\  \hline
+              C & $\varnothing$ & $\varnothing$ & cbf           & bf  \\  \hline
+              D & $\varnothing$ & $\varnothing$ & $\varnothing$ & cbf \\ \hline
+            \end{tabular}
+          \end{minipage}\,
+
+          \begin{itemize}
+            \item   The first property ($\forall x \in Ob(\mathcal{X}): I \leq \mathcal{X}(x,x)$) is satisfied by noting \,the diagonal entries are equal to the unit\,.
+            \item The second property ($\forall x,y,z \in Ob(\mathcal{X}): \mathcal{X}(x,y)\otimes\mathcal{X}(y,z) \leq \mathcal{X}(x,z)$) can be checked looking at the following cases:\,
+                  \begin{itemize}
+                    \item $A \rightarrow B \rightarrow D$: $cbf \cap c \leq cf$
+                    \item $A \rightarrow C \rightarrow D$: $cf \cap bf \leq cf$
+                  \end{itemize}\,
+
+          \end{itemize}
+    \item One subtlety is that we need to say that one can get from any place to itself by any means of transportation for this to make sense. Overall interpretation looks good.
+  \end{enumerate}

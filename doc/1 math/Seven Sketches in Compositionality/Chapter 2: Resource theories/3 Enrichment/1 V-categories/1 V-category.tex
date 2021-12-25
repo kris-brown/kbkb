@@ -1,0 +1,16 @@
+% TAG Def
+A $\mathcal{V}$ \emph{category}, given a \hyperref[D2.2]{symmetric monoidal preorder} $\mathcal{V}=(V,\leq,I,\otimes)$
+
+\begin{itemize}
+    \item To specify the category $\mathcal{X}$, one specifies:
+          \begin{enumerate}
+            \item A set $Ob(\mathcal{X})$ whose elements are called \,\emph{objects}\,
+            \item A \,\emph{hom-object} for every pair of objects in $Ob(\mathcal{X})$\,, written $\mathcal{X}(x,y) \in V$
+          \end{enumerate}
+    \item The following properties must be satisfied:
+          \begin{enumerate}
+            \item $\forall x \in Ob(\mathcal{X}):$ \,$I \leq \mathcal{X}(x,x)$\,
+            \item $\forall x,y,z \in Ob(\mathcal{X}):$ \,$\mathcal{X}(x,y)\otimes\mathcal{X}(y,z) \leq \mathcal{X}(x,z)$\,
+          \end{enumerate}
+    \item We call $\mathcal{V}$ the\, \emph{base of enrichment}\, for $\mathcal{X}$ or say that $\mathcal{X}$ is\, \emph{enriched}\, in $\mathcal{V}$.
+  \end{itemize}

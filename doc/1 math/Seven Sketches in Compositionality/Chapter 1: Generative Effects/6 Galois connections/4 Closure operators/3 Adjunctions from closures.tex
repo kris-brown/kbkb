@@ -1,0 +1,24 @@
+% TAG Example
+
+\begin{itemize}
+    \item Just as adjunctions give rise to \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/4 Closure operators/1 Closure operator}{closure operator}s, from every closure operator we may construct an adjunction.
+    \item Let $P \xrightarrow{j} P$ be a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/4 Closure operators/1 Closure operator}{closure operator}.
+    \item Get a new preorder by looking at a subset of $P$ fixed by $j$.
+          \begin{itemize}
+            \item $fix_j$ defined as \,$\{p \in P\ |\ j(p)\cong p\}$\,
+          \end{itemize}
+    \item Define a \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} $P \xrightarrow{j} fix_j$ and \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{right adjoint} $fix_j \xhookrightarrow{g} P$ as \,simply the inclusion function\,.
+    \item To see that $j \dashv g$, we need to verify $j(p) \leq q \iff p \leq q$
+          \begin{itemize}
+            \item Show $\rightarrow$:
+                  \begin{itemize}
+                    \item \,Because $j$ is a closure operator, $p \leq j(p)$
+                    \item $j(p) \leq q$ implies $p \leq q$ by transivity\,.
+                  \end{itemize}
+            \item Show $\leftarrow$:
+                  \begin{itemize}
+                    \item \,By \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/4 Monotone maps/1 Monotone map}{monotonicity} of $j$ we have $p \leq q$ implying $j(p) \leq j(q)$
+                    \item  $q$ is a fix point, so the RHS is congruent to $q$, giving $j(p) \leq q$\,.
+                  \end{itemize}
+          \end{itemize}
+  \end{itemize}

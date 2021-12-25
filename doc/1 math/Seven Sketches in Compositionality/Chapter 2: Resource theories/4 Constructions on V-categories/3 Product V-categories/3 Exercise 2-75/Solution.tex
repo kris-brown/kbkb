@@ -1,0 +1,13 @@
+\begin{enumerate}
+    \item \begin{itemize}
+            \item By axioms of $\mathcal{V}$ categories: $I \leq \mathcal{X}(x,x')=xx$ and $I \leq \mathcal{Y}(y,y')=yy$
+            \item \,By monotonicity: $I \leq xx \land I \leq yy$\, implies $I = I \otimes I \leq xx \otimes yy$.
+            \item By the definition of a product category this last term can be written as $(\mathcal{X} \times \mathcal{Y})((x,y),(x,y))$
+          \end{itemize}
+    \item \begin{itemize}
+            \item By axioms of $\mathcal{V}$ categories: $\mathcal{X}(x_1,x_2) \otimes \mathcal{X}(x_2,x_3) \leq \mathcal{X}(x_1,x_3)$ and $\mathcal{Y}(y_1,y_2) \otimes \mathcal{Y}(y_2,y_3) \leq \mathcal{Y}(y_1,y_3)$
+            \item \,Therefore, by monotonicity,\, we have $(\mathcal{X}(x_1,x_2) \otimes \mathcal{X}(x_2,x_3)) \otimes (\mathcal{Y}(y_1,y_2) \otimes \mathcal{Y}(y_2,y_3)) \leq \mathcal{X}(x_1,x_3) \otimes  \mathcal{Y}(y_1,y_3)$
+            \item Desugaring the definiton of the hom-object in $\mathcal{X}\times\mathcal{Y}$, the property we need to show is that $(\mathcal{X}(x_1,x_2) \otimes\mathcal{Y}(y_1,y_2)) \otimes (\mathcal{X}(x_2,x_3) \otimes\mathcal{Y}(y_2,y_3)) \leq (\mathcal{X}(x_1,x_3) \otimes\mathcal{Y}(y_1,y_3))$
+            \item Given \,the \textbf{associativity} and \textbf{commutitivity} of the $\otimes$ operator, we can rearange the order and ignore parentheses for the four terms on the LHS\,. Do this to yield the desired expression.
+          \end{itemize}
+  \end{enumerate}

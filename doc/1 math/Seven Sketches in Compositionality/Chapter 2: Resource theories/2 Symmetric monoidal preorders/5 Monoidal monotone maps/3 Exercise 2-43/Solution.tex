@@ -1,0 +1,14 @@
+\begin{itemize}
+    \item  It is monotonic:  $\forall a,b \in \mathbb{B}: a\leq b \implies g(a)\leq g(b)$
+          \begin{itemize}
+            \item there is only one nonidentity case in $\mathbf{Bool}$ to cover, and it is true that \,$\infty\ \leq_\mathbf{Cost}\ 0$\,.
+          \end{itemize}
+    \item Condition on units: \,$0 \leq_\mathbf{Cost} g(true)$ (actually, it is equal)\,
+    \item In $\mathbf{Cost}$: $g(x) + g(y) \geq g(x \land y)$
+          \begin{itemize}
+            \item if both true/false, \,the equality condition holds\,.
+            \item If one is true and one is false, then \,LHS and RHS are $\infty$ (as $x \land y = False$)\,.
+          \end{itemize}
+    \item Therefore this is \,a \emph{strict} \hyperref[D2.41]{monoidal monotone}\,.
+
+  \end{itemize}

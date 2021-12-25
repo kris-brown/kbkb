@@ -1,0 +1,6 @@
+\begin{itemize}
+    \item  We proved one direction in \hyperref[P2.87]{P2.87}
+    \item We need to show that $(v \otimes \bigvee A)\cong  \bigvee_{a \in A} v \otimes a$ (and all joins existing) implies that there exists a $\multimap$ operation that satisfies the \hyperref[D2.79]{closed property}: $\forall a,v,w \in V: (a \otimes v) \leq w$ iff $a \leq (v \multimap w)$.
+    \item The \hyperref[P1.115]{adjoint functor theorem for preorders} states that \,\hyperref[D1.59]{monotone maps} preserve \hyperref[D1.81]{joins} iff they're left adjoint\,, so $V \xrightarrow{-\otimes v} V$ must have \,a right adjoint \emph{g}, which, being a \hyperref[D1.95]{Galois connection}, will satisfy the property $(a \otimes v) \leq w \iff a \leq g(w)$ (this is the \hyperref[D2.79]{monoidal closed} property)\,.
+    \item Let's rename \,$g \equiv v \multimap -$\,. The adjoint functor theorem even gives us a construction for the right adjoint, namely: \,$v \multimap w:=\bigvee\{a \in V\ |\ a \otimes v \leq w\}$\,.
+  \end{itemize}

@@ -1,0 +1,18 @@
+\begin{enumerate}
+    \item  $\begin{tikzcd}[ampersand replacement=\&]A \arrow[d, "\infty"'] \arrow[r, "2"] \arrow[rd, "1", bend right] \& B \arrow[d, "1"', bend right]      \\C \arrow[r, "3"'] \arrow[ru, "3", bend left]\& D \arrow[u, "\infty"', bend right]\end{tikzcd}$ (implicitly, no path means path of weight 0, and self paths have weight $\infty$)
+    \item Maxmin matrix:
+
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|l|}
+              \hline
+                & A        & B        & C        & D        \\ \hline
+              A & $\infty$ & 3        & $\infty$ & 3        \\ \hline
+              B & 0        & $\infty$ & 0        & $\infty$ \\ \hline
+              C & 0        & 3        & $\infty$ & 3        \\  \hline
+              D & 0        & 1        & 0        & $\infty$ \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+          Self paths are equal to \,the monoidal unit\, and it will never be the case that $min(\mathcal{X}(A,B),\mathcal{X}(B,C)) >  \mathcal{X}(A,C)$ because even in the worst-case scenario (where there is not a better path from \emph{A} to \emph{C} that ignores \emph{B} completely), we form the best path by \,combining the best path from \emph{A} to \emph{B} with the best from \emph{B} to \emph{C}. We are forced to take the minimum edge label in the path, which means that the lowest $\mathcal{X}(A,C)$ can be is actually \emph{equal} to the left hand side\,.
+    \item The edges could represent \,constraints ($\infty$ is fully unconstrained, $0$ is fully constrained, e.g. the diameter of a pipe)\, and the hom-object represents the \,least-constrained thing that can get from one point to another\,. The monoidal unit says that \,something can be fully unconstrained if it stays where it is\,, and the monoidal product (min) says \,how to compose two different constraints in series\,.
+  \end{enumerate}

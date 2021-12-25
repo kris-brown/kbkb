@@ -1,0 +1,16 @@
+% TAG Exercise
+
+Let $S=\{1,2,3\}$
+    \begin{enumerate}
+      \item Come up with any preorder relation on $S$, and define $U(\leq):=\{(s_1,s_2)\ |\ s_1 \leq s_2\}$ (the relation `underlying' the preorder. Note $\mathbf{Pos}(S) \xhookrightarrow{U} \mathbf{Rel}(S)$)
+      \item Pick \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/2 What is order/Relation}{binary relations} such that $Q \subseteq U(\leq)$ and $Q' \not \subseteq U(\leq)$
+    \end{enumerate}
+    We want to check that the reflexive/transitive closure operation $Cl$ is really \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{left adjoint} to the underlying relation $U$.
+    \begin{itemize}
+      \item The meaning of $Cl \dashv U$ is $Cl(R) \sqsubset \leq \iff R \sqsubset U(\leq)$, where $\sqsubset$ is the order relation on $\mathbf{Pos}(S)$
+    \end{itemize}
+
+    \begin{enumerate}
+      \item[3] Concretely show that $Cl(Q) \sqsubset \leq$
+      \item[4] Concretely show that $Cl(Q') \not \sqsubset \leq$
+    \end{enumerate}

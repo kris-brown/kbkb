@@ -1,0 +1,44 @@
+% TAG Example
+\begin{itemize}
+    \item Let $\mathcal{X}$ and $\mathcal{Y}$ be the \hyperref[D2.53]{Lawvere metric spaces} (i.e. \textbf{Cost}\hyperref[D2.46]{categories}) defined by the following weighted graphs.
+    \item $\begin{tikzcd}\mathcal{X}:= & A \arrow[r, "2"]            & B \arrow[r, "3"]            & C \\\mathcal{Y}:= & P \arrow[r, "5", bend left] & Q \arrow[l, "8", bend left] &  \end{tikzcd}$
+    \item The product can be represented by the following graph: \,$\begin{tikzcd}{(A,P)} \arrow[r, "2"] \arrow[d, "5"', bend right]  & {(B,P)} \arrow[r, "3"] \arrow[d, "5"', bend right]  & {(C,p)} \arrow[d, "5"', bend right] \\{(A,Q)} \arrow[r, "2"'] \arrow[u, "8"', bend right] & {(B,Q)} \arrow[r, "3"'] \arrow[u, "8"', bend right] & {(C,Q)} \arrow[u, "8"', bend right]\end{tikzcd}$\,
+    \item The distance between any two points $(x,y),(x',y')$ is given by \,the sum $d_X(x,x)+d_Y(y,y)$\,.
+
+    \item We can also consider the \textbf{Cost}-\hyperref[D2.46]{categories} as matrices
+
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|}
+              \hline
+              $\mathcal{X}$ & A        & B        & C \\ \hline
+              A             & 0        & 2        & 5 \\ \hline
+              B             & $\infty$ & 0        & 3 \\ \hline
+              C             & $\infty$ & $\infty$ & 0 \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+          \begin{minipage}{0.48\textwidth}
+
+            \begin{tabular}{|l|l|l|}
+              \hline
+              $\mathcal{Y}$ & P & Q \\ \hline
+              P             & 0 & 5 \\ \hline
+              Q             & 8 & 0 \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|l|l|l|}
+              \hline
+              $\mathcal{X}\times\mathcal{Y}$ & (A,P)    & (B,P)    & (C,P) & (A,Q)    & (B,Q)    & (C,Q) \\ \hline
+              (A,P)                          & 0        & 2        & 5     & 5        & 7        & 10    \\ \hline
+              (B,P)                          & $\infty$ & 0        & 3     & $\infty$ & 5        & 8     \\ \hline
+              (C,P)                          & $\infty$ & $\infty$ & 0     & $\infty$ & $\infty$ & 5     \\ \hline
+              (A,Q)                          & 8        & 10       & 13    & 0        & 2        & 5     \\ \hline
+              (B,Q)                          & $\infty$ & 8        & 11    & $\infty$ & 0        & 3     \\ \hline
+              (C,Q)                          & $\infty$ & $\infty$ & 8     & $\infty$ & $\infty$ & 0     \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+    \item    Can view this as a 2x2 grid of 3x3 blocks: each is \,a $\mathcal{X}$ matrix shifted by $\mathcal{Y}$\,.
+  \end{itemize}

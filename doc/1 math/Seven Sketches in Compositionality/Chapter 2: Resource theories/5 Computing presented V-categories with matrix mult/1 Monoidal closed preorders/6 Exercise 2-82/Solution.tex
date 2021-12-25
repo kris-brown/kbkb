@@ -1,0 +1,16 @@
+\begin{enumerate}
+    \item
+          \begin{itemize}
+            \item Given the \,monotonicity constraint\, of $\otimes$
+            \item And \,reflexivity: $v \leq v$\,, we have:
+            \item $x_1 \leq y_1$ implies that $(x_1 \otimes v) \leq (y_1 \otimes v)$
+          \end{itemize}
+    \item Substitute \,$v \multimap w$ for $a$\, into the \hyperref[D2.79]{closed property equation}, to get \,$((v \multimap w)\otimes v) \leq w \iff v \multimap w \leq v \multimap w$\, (the RHS is true by reflexivity, so the LHS must be true).
+    \item Need to show: if we assume \,$x \leq y$\, then we can conclude \,$(v \multimap x) \leq (v \multimap y)$\,
+          \begin{itemize}
+            \item From the previous part, we have $(v \multimap x) \otimes v \leq x$ and $(v \multimap y) \otimes v \leq y$
+            \item Assuming the antecedant \,$x \leq y$\,, and \,given transitivity\,, we have $(v \multimap x) \otimes v \leq (v \multimap y) \otimes v$
+            \item Because \,the $\otimes$ operation must be \hyperref[D2.2]{monotonic}\,, the consequent follows.
+          \end{itemize}
+    \item A \hyperref[D1.95]{Galois connection} requires that both maps be \,\hyperref[D1.59]{monotone}\, and that they satisfy \,$f(p)\leq q$ iff $p \leq g(q)$\,. This is the relation captured by the \hyperref[D2.79]{closed property equation}, and both maps were shown to be \,\hyperref[D1.59]{monotone}\,.
+  \end{enumerate}

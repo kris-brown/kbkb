@@ -1,0 +1,15 @@
+\begin{itemize}
+    \item Suppose $h$ is also \href{doc/1 math/Seven Sketches in Compositionality/Chapter 1: Generative Effects/6 Galois connections/1 Definition and examples/Galois connection}{right adjoint} to $f$.
+    \item What it means for $h \cong g$:
+          \begin{itemize}
+            \item \,$\forall q \in Q:  h(q) \cong g(q)$\,
+          \end{itemize}
+    \item $g(q) \leq h(q)$
+      \begin{itemize}
+      \item Substitute $g(q)$ for $p$ in \,$p \leq h(f(p))$ (from $h$'s adjointness)\, to get $g(q) \leq h(f(g(q)))$
+      \item Also apply $h$ to both sides of \,$f(g(q)) \leq q$ (from $g$'s adjointness)\, to get $h(f(g(q)))\leq h(q)$
+      \item The result follows from transitivity.
+      \end{itemize}
+    \item By symmetry (nothing was specified about $h$ or $g$) the proof of $h(q)\leq g(q)$ is the same.
+    \item Same reasoning for left adjoints.
+  \end{itemize}
