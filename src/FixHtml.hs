@@ -32,9 +32,9 @@ root :: Text
 root = "https://web.stanford.edu/~ksb/phil/"
 
 jsbody :: Text
-jsbody = pack $ unsafePerformIO $ P.readFile "src/jsbody.html"
+jsbody = pack $ unsafePerformIO $ P.readFile "src/html/jsbody.html"
 jshead :: Text
-jshead = replace "demo" (root <> "demo") $ pack $ unsafePerformIO $ P.readFile "src/jshead.html"
+jshead = replace "demo" (root <> "demo") $ pack $ unsafePerformIO $ P.readFile "src/html/jshead.html"
 
 ne :: Node -> Maybe Element
 ne (NodeElement x) = Just x

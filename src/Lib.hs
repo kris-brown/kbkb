@@ -230,7 +230,7 @@ sectionToHTMLrec mkPdf bkLinks colorDict parent s  = do
     -- generate html and images
     let pdcmd = "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
       \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
-      \--lua-filter=src/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
+      \--lua-filter=src/misc/tikz-to-png.lua -s -o " <> html <> " " <> tmppth
     _ <- system pdcmd
 
     -- move generated figures to site/img/
@@ -261,7 +261,7 @@ sectionToHTML mkPdf topSection = do
     imgs <- listDirectory "img"
     sequence_ $ (\x -> copyFile ("img/"<>x) ("site/img/"<>x)) <$> imgs
     -- copy toplevel files
-    sequence_ $ (\x-> copyFile ("src/"<>x) ("site/"<> x)) <$> [
+    sequence_ $ (\x-> copyFile ("src/html/"<>x) ("site/"<> x)) <$> [
       "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
     -- recursively add each section
     sectionToHTMLrec mkPdf bkLinks colorDict Nothing topSection

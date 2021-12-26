@@ -35,6 +35,11 @@ dependencies:
 - raw-strings-qq
 - html-conduit
 - xml-conduit
+- postgresql-simple
+- bytestring
+- hashable
+- extra
+- utf8-string
 library:
   source-dirs: src
 
