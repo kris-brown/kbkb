@@ -255,7 +255,7 @@ fromDB' c i = do
     ([], [[_]])  -> contentsFromDB c i  -- Content
     z -> error $ show (i, z)
   where
-    q = (fmap f <$> query c qmd [i])
+    q = fmap f <$> query c qmd [i]
     qmd = "SELECT title, tag::text, uuid FROM sections WHERE sect=?"
     q' = query c "SELECT 1 FROM contents WHERE sect=?" [i] :: IO [[Int]]
     f [a,b,c] = MData a (read $ unpack b) c
@@ -263,7 +263,7 @@ fromDB' c i = do
     qch = "SELECT id FROM section WHERE parent=? AND id<>? ORDER BY ord"
 
 url :: Connection -> Section -> IO Text
-url c s = (head . head) <$> query c q [uid $ mdata s]
+url c s = head . head <$> query c q [uid $ mdata s]
   where q = "SELECT urlpth FROM section WHERE uuid=?"
 
 -- Load content from denormalized database into web database
@@ -286,9 +286,13 @@ popWeb dConn wConn = do
               \ JOIN sections ON (section.parent = sections.sect);"
         q4 = "INSERT INTO link (src,tgt,display,comm,repl) VALUES (?,?,?,?,?)"
         q5 = "SELECT id FROM section WHERE uuid=?"
-        getId (u1,u2,x2,x3) = do
+        getId tup@(u1,u2,x2,x3) = do
+          -- pattern match failure here IF we have broken internal link
           [[i1]] <- query wConn q5 [u1] :: IO [[Int]]
-          [[i2]] <- query wConn q5 [u2] :: IO [[Int]]
+          i2' <- query wConn q5 [u2] :: IO [[Int]]
+          let i2 = case i2' of
+                        [[i]] -> i
+                        _ -> error $ show tup
           return (i1,i2, x2, x3, intercalate "|" [u2,x2,x3])
 
 addURL :: Connection -> Text -> Section -> IO ()

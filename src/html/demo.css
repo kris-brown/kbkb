@@ -15,6 +15,12 @@ nav
 {
 	display:block;
 	margin-bottom:2em;
+    top: 0px;
+	left: 0px;
+	background-color: white;
+    align-items: center;
+    border-bottom: 4px solid black;
+
 }
 
 details

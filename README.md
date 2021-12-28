@@ -25,14 +25,16 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - List of other pages that link to the current page
   - Go back to the specific part that linked it
   - Optionally include a description of the context of the link
-- keyword parsing at the top (`% TAG _` in top line of file)
+- Metadata parsing (file named `0` in a given folder)
+    - Specify title, unique identifier, and tag.
     - Tags like "Def" / "Exercise" used to color the section
-
-## TODO
 - Different interconvertable representations of the KB
   1. Directories of TeX files (good for writing long form)
   2. Normalized database (good for editing connections)
   3. Denormalized database (good for querying)
+
+## TODO
+- Parse markdown OR LaTeX
 - Sections should be able to have text interspersed with nested sections, rather
   than only being able to have it at the start
 - LaTeX errors are silent: prefer to fail noisily rather than just have blank

@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS link;
 DROP TABLE IF EXISTS section;
+DROP TABLE IF EXISTS img;
 
 -- Sum type: sections + contents (exactly one should have fk to each content elem)
 CREATE TABLE section (
@@ -31,4 +32,10 @@ CREATE TABLE comments (
 	email TEXT NOT NULL,
 	tstamp TEXT NOT NULL,
 	body TEXT NOT NULL
+);
+
+CREATE TABLE img (
+	id SERIAL PRIMARY KEY,
+	iname TEXT NOT NULL,
+	ival BYTEA
 );

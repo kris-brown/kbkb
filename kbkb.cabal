@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f98e882ee8bf7d89e187ec6bce044a44a8b45a3144d70baa2fcfccba5f6151da
+-- hash: ef235f6124ca2056e93bb05c1342bd51ddf50556469fad036c1f0b7117737986
 
 name:           kbkb
 version:        0.1.0.0
@@ -27,8 +27,6 @@ source-repository head
 library
   exposed-modules:
       DB
-      FixHtml
-      Lib
       ToHTML
       ToLatex
   other-modules:
