@@ -1,5 +1,6 @@
 module DB
-  (  ) where
+  (Section(..), TagType(..), MData(..), if' , title', loadDir, url, normc, webc,
+   toDB, addURL, popWeb, resetDB, isSections ) where
 import Data.Tuple.Extra (uncurry3)
 import Data.Hashable ( Hashable, hash )
 import Text.Read (readMaybe)
@@ -46,21 +47,27 @@ dropDigitSpace = dropWhile (\x->isDigit x || isSpace x)
 
 -- Basic DB
 -----------
-conn :: IO Connection
-conn = connect defaultConnectInfo{
+conn :: String -> IO Connection
+conn t = connect defaultConnectInfo{
         connectHost = "localhost",
-        connectDatabase = "kbkb",
+        connectDatabase = t,
         connectUser = "ksb",
         connectPassword = ""}
+normc = conn "kbkb"
+webc = conn "web"
 
 resetDB :: IO ()
-resetDB = do c <- conn
-             resetCmd <- B.readFile "src/misc/create.sql"
+resetDB = do c <- webc
+             c' <- normc
+             resetCmd <- B.readFile "src/misc/create_web.sql"
+             resetCmd' <- B.readFile "src/misc/create_norm.sql"
              execute_ c $ Query resetCmd
+             execute_ c' $ Query resetCmd'
              pure ()
 
 -- Data structures
 ------------------
+
 data TagType = Kris | Def | Prop | Exercise | Example | Default
              deriving (Show, Eq, Ord, Read, Generic)
 data Comment = Comment {email::Text, tstamp::Text, body::Text}
@@ -74,6 +81,10 @@ instance Hashable TagType
 instance Hashable Comment
 instance Hashable MData
 instance Hashable Section
+
+title' = title . mdata
+isSections Sections {} = True
+isSections Content {} = False
 
 -- Printing/Parsing
 -------------------
@@ -92,7 +103,7 @@ writeComments =
 parseMData :: FilePath -> String -> MData
 parseMData fp s = MData a'' b (pack c)
   where dtitle = unpack $ last $ splitOn "/" $ pack fp
-        duid = unpack $ T.filter (not . isSpace) $ pack fp
+        duid = unpack $ T.replace "/" "-" $ T.filter (not . isSpace) $ pack fp
         a' = pack $ dropDigitSpace a
         a'' = if' (T.null a') (error fp) a'
         (a,b,c) = case lines s of
@@ -178,7 +189,6 @@ contentToDB c contId (isHead, ord, txt) = do
 
 toDB' :: Connection -> Section -> IO ()
 toDB' c s@(Content n) = do
-    putStrLn $ "PROCESSING CONTENT " <> show s
     execute c "INSERT INTO contents (id, sect) VALUES (?,?)" [hash n, hash s]
     sequence_  $ contentToDB c (hash n) <$> contentArgs
   where contentArgs = zip3 ((==1) <$> [1..]) [1..] (splitOn "\\ref" n)
@@ -252,10 +262,47 @@ fromDB' c i = do
     qc = "SELECT email,tstamp,body FROM comments WHERE sect = ? ORDER BY tstamp"
     qch = "SELECT id FROM section WHERE parent=? AND id<>? ORDER BY ord"
 
+url :: Connection -> Section -> IO Text
+url c s = (head . head) <$> query c q [uid $ mdata s]
+  where q = "SELECT urlpth FROM section WHERE uuid=?"
+
+-- Load content from denormalized database into web database
+popWeb :: Connection -> Connection -> IO ()
+popWeb dConn wConn = do
+    sectData <- query_ dConn q1 :: IO [(Int,Int,Int,Text,Text)]
+    executeMany wConn q2 sectData
+    linkData <- query_ dConn q3 :: IO [(Text,Text,Text,Text)]
+    print linkData
+    -- Get IDs for
+    linkData' <- sequence $ getId <$> linkData
+    executeMany wConn q4 linkData'
+    pure ()
+  where q1 = "SELECT section.id,parent,ord,uuid,title \
+             \FROM section JOIN sections USING (id)"
+        q2 = "INSERT INTO section (id,parent,ord,uuid,title) VALUES (?,?,?,?,?)"
+        q3 = "SELECT sections.uuid,intlink.uuid,display,comm \
+              \FROM intlink JOIN content ON (intlink.cont = content.id) \
+              \ JOIN contents ON (content.cont = contents.id) \
+              \ JOIN section ON (contents.sect = section.id) \
+              \ JOIN sections ON (section.parent = sections.sect);"
+        q4 = "INSERT INTO link (src,tgt,display,comm,repl) VALUES (?,?,?,?,?)"
+        q5 = "SELECT id FROM section WHERE uuid=?"
+        getId (u1,u2,x2,x3) = do
+          [[i1]] <- query wConn q5 [u1] :: IO [[Int]]
+          [[i2]] <- query wConn q5 [u2] :: IO [[Int]]
+          return (i1,i2, x2, x3, intercalate "|" [u2,x2,x3])
+
+addURL :: Connection -> Text -> Section -> IO ()
+addURL _ _ Content {} = pure ()
+addURL c prevURL s@(Sections (MData _ _ u) ss _) = do
+  execute c q (newURL, u)
+  sequence_ $ addURL c newURL <$> ss
+    where q = "UPDATE section SET urlpth = ? WHERE uuid = ?;"
+          newURL = prevURL <> "/" <> u
 
 test :: IO Section
 test = do resetDB
-          c <- conn
+          c <- normc
           putStrLn "loading bkup_doc"
           s <- loadDir "bkup_doc"
 

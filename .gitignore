@@ -10,3 +10,7 @@ stack.yaml.lock
 tst/
 
 bkup_doc/
+
+site2/
+
+test.html
