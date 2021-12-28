@@ -9,9 +9,11 @@ import System.Process (system)
 import Data.Tuple.Extra (fst3)
 import Data.List (sort)
 import Debug.Trace (trace)
-import Control.Monad (when)
-import Database.PostgreSQL.Simple (Connection, execute, query_)
-import System.Directory (createDirectoryIfMissing, getTemporaryDirectory,  removeDirectoryRecursive, createDirectory)
+import Control.Monad (when, forM_)
+import Database.PostgreSQL.Simple (Connection, execute, query_, query)
+import System.Directory (createDirectoryIfMissing, getTemporaryDirectory,
+                         removeDirectoryRecursive, createDirectory, renameFile,
+                         listDirectory, copyFile)
 
 import ToLatex
 import DB
@@ -28,13 +30,17 @@ fixHTML :: Connection -> Bool -> Section -> Bracket -> Text -> Text -> IO Text
 fixHTML cn outer s@(Sections m ss c) (Bracket _ _ bs) t footnote
  | ls /= lb = error $ (show ls) <> " != " <> (show lb)
  | otherwise = do body <- sequence ioProcessedReg
+                  bklinks <- backLinks cn s
+                  putStrLn $ "backlinks " <> show bklinks
                   overallHead <- pack <$> readFile "src/html/overallhead.html"
-                  let res = (if' outer overallHead ""):body ++ (if' outer [footnote, "</body></html>"] [""])
+                  let res = concat [[if' outer (overallHead <> titl) ""], body,
+                                    [bklinks], if' outer [footnote, "</body></html>"] [""]]
                   return $ T.concat res
   where ss' = filter isSections ss
         (ls, lb) = (length ss', length bs)
         reg = getRegions s t --regions (zip ss' bs) $ T.length t
         ioProcessedReg = (processRegion cn t) <$> reg
+        titl = "\n<h1 class=\"title\">"<> title m <>"</h1>"
 
 
 getRegions :: Section -> Text -> [Either (Int, Int) (Section, Bracket)]
@@ -45,8 +51,6 @@ getRegions (Sections _ ss _ ) t = regions (zip ss' bs) $ T.length t
 repMany :: [(Text,Text)] -> Text -> Text
 repMany rs x = foldl (\h (n,r) -> replace n r h) x rs
 
-applyReps :: Text -> Text
-applyReps = repMany reps
 
 processRegion :: Connection -> Text -> Either (Int, Int) (Section, Bracket)
           -> IO Text
@@ -61,18 +65,31 @@ processRegion db t (Right (s@(Sections (MData ttl tg uuid) ss _),
     tagToColor tg,";\" id=\"",uuid,"\"> \n\t<strong><a href=\"",u,"\">",
     ttl,"</a></strong>\n</summary>\n<div id=\"", uuid,"\">",
     subContent, "\n</div></details>\n"]
-
+backLinks :: Connection -> Section -> IO Text
+backLinks c s = do
+  lData <- query c q [uid $ mdata s]
+  putStrLn $ unpack $ uid $ mdata s
+  putStrLn $ "lData " <> show lData
+  let lnks = f <$> lData
+  return $ if' (null lnks) ""
+               ("<h3>Linked by</h3><ul>" <> intercalate "\n" lnks <> "</ul>")
+    where
+      q = "SELECT src.urlpth, comm  FROM link \
+      \JOIN section as tgt ON (link.tgt=tgt.id) \
+      \JOIN section as src ON (link.src=src.id) \
+      \WHERE tgt.uuid = ?"
+      f (urlpth, desc) = T.concat [
+        "<li><a href=\"", rootURL, urlpth, ".html\">", desc, "</a></li>"]
 -- Fix internal links
 processPlainText :: Connection -> Text -> IO Text
 processPlainText c t = do
   ls <- query_ c "SELECT repl, display, urlpth FROM link JOIN section ON (link.tgt=section.id)"
   let ls' = f <$> ls
-  print ls'
   return $ repMany ls' t
     where f (a,b,c) = ("<span class=\"math inline\">\\(\\ref{" <> a <> "}\\)</span>", T.concat ["<a href=\"",rootURL, c,".html\">", b,"</a>"])
 
 
-initialHTML :: Connection -> Section -> IO (Text, Text)
+initialHTML :: Connection -> Section -> IO (Text, Text, [(Text,Text)])
 initialHTML c s = do
   u <- unpack <$> url c s
   tmpdir <- (<> u) <$> getTemporaryDirectory
@@ -82,6 +99,13 @@ initialHTML c s = do
   system $ "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
   \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
   \--lua-filter=src/misc/tikz-to-png.lua -s -o " <> tmpdir <> "/test.html "<>texpth
+
+  -- Move generated images
+  pngs <- filter isPng <$> listDirectory "."
+  pngdata <- sequence $ readFile <$> pngs
+  let imgs = zip (pack <$> pngs) (pack <$> pngdata)
+
+  -- Process the raw html result
   res <- readFile (tmpdir ++ "/test.html")
   let [_,res'] = splitOn "</header>" $ pack res
   let [res'',_] = splitOn "</body>" res'
@@ -94,11 +118,11 @@ initialHTML c s = do
   assert `seq` (pure ())
   assert' `seq` (pure ())
   let resbody = takeDrop (nStart+1) ((T.length res'')-nEnd-2) rbody
-  return $ (resbody, rfoot)
+  return $ (resbody, rfoot, imgs)
   where footdelim = "<section class=\"footnotes"
         bibdelim = "<div id=\"refs\" class=\"references"
         fstDelim x = if' (isInfixOf bibdelim $ pack x) bibdelim footdelim
-
+        isPng p = P.drop (length p - 4) p == ".png"
 -- Convert this type into a more printable type for debugging
 viewRegions :: [Either (Int, Int) (Section, Bracket)] -> [(Text, Int, Int)]
 viewRegions = fmap f
@@ -182,29 +206,42 @@ tagToColor Default = "lightgrey"
 addHtml :: Connection -> Section -> IO ()
 addHtml c Content {} = pure ()
 addHtml c s@(Sections (MData ttl _ u) ss _) = do
-  putStrLn $ ">>>title: " <> unpack ttl <> "\n>>>number of subSections: " <> show (length (filter isSections ss))
-  (iHTML, iFootnote) <- initialHTML c s
+  (iHTML, iFootnote, imgs) <- initialHTML c s
+  forM_ imgs (execute c q2) -- add images to DB
   let starts = findIndices startDelim iHTML
   let b = getBracket iHTML 0
-   --if' (null starts) (Bracket 0 (T.length iHTML) [])
-  --            (getBracket iHTML (head starts))
-  when (u=="root") $ writeFile "test.html" (unpack iHTML) -- debugging
-  print $ ">>>b: " <> show b
   t <- fixHTML c True s b iHTML iFootnote
-  let t' = applyReps t
-  putStrLn $ ">>> t: " <> unpack t
-  --putStrLn $ "t' " <> unpack t'
+  rs <- reps c
+  let t' = repMany rs t
   execute c q (t', u)
   sequence_ $ addHtml c <$> ss
-  where q = "UPDATE section SET html = ? WHERE uuid = ?;"
+    where q = "UPDATE section SET html = ? WHERE uuid = ?;"
+          q2 = "INSERT INTO img (iname, ival) VALUES (?,?)"
+reps :: Connection -> IO [(Text, Text)]
+reps c = do us <- query_ c "SELECT urlpth FROM section;" :: IO [[Text]]
+            return $ (urlfix <$> us) ++ fixed
+  where urlfix [u] = ("href=\""<>u <> "\"",
+                      T.concat ["href=\"", rootURL, u, ".html\""])
+        fixed = [(startDelim, ""), (endDelim, ""),
+                ("img src=\"", "img src=\""<>rootURL<>"img/"),
+                ("src=\"img/", "src=\"" <> rootURL <> "img/"), -- from \includegraphics
+                ("role=\"doc-bibliography\">",
+                    "role=\"doc-bibliography\"><strong>Bibliography</strong><br>")]
 
-reps :: [(Text, Text)]
-reps = [(startDelim, ""), (endDelim, ""),
-        ("role=\"doc-bibliography\">",
-         "role=\"doc-bibliography\"><strong>Bibliography</strong><br>")]
-
+-- TODO: the fact that site/ is the target site folder is hardcoded into
+-- tikz-to-png.lua
 makeSite :: Connection -> FilePath -> IO ()
 makeSite c sitepth = do
+  -- initialize site/img directory with img/ directory
+  createDirectoryIfMissing True $ sitepth <> "/img/"
+  imgs <- listDirectory "img"
+  sequence_ $ (\x -> copyFile ("img/"<>x) (sitepth <> "/img/"<>x)) <$> imgs
+
+  -- copy toplevel files
+  sequence_ $ (\x-> copyFile ("src/html/"<>x) (sitepth<>"/"<> x)) <$> [
+    "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
+
+  -- Add the pages
   urlhtmls <- query_ c "SELECT urlpth, html FROM section"
   sequence_ $ addUrlHtml sitepth <$> urlhtmls
 
@@ -227,3 +264,5 @@ test = do
   removeDirectoryRecursive "site2"
   createDirectory "site2"
   makeSite c' "site2/"
+  system [r|rsync -r site2/ ksb@rice.stanford.edu:afs-home/WWW/phil|]
+  pure ()

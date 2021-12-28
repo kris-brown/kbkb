@@ -272,7 +272,6 @@ popWeb dConn wConn = do
     sectData <- query_ dConn q1 :: IO [(Int,Int,Int,Text,Text)]
     executeMany wConn q2 sectData
     linkData <- query_ dConn q3 :: IO [(Text,Text,Text,Text)]
-    print linkData
     -- Get IDs for
     linkData' <- sequence $ getId <$> linkData
     executeMany wConn q4 linkData'

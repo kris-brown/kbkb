@@ -69,7 +69,7 @@
             // positioning
             var fontSize = parseInt(this.$el.css('font-size').replace('px', ''), 10)
             var top = (this.$el.height() + fontSize) / 2;
-            var left = (this.$el.width() - $wrapper.outerWidth()) / 2;
+            var left = ($wrapper.outerWidth()) / 2;// this.$el.width() -
             $wrapper.css({
                 top: top + 'px',
                 left: left + 'px'
