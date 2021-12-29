@@ -1,0 +1,16 @@
+\begin{itemize}
+    \item Construct \ref{Preorder|preorder|referenced} $(X,\leq_X)$ from any \textbf{Bool}-\ref{V-category|category|referenced} $\mathcal{X}$
+          \begin{itemize}
+            \item Let $X$ be \,$Ob(\mathcal{X})$\, and $x\ \leq_X\ y$ be defined as \,$\mathcal{X}(x,y)=true$\,
+            \item This is reflexive and transitive because of the two constraints we put on \ref{V-category|enriched categories|referenced}.
+                  \begin{itemize}
+                    \item The first constraint says that \,$true \leq (x \leq_X x)$\,
+                    \item The second constraint says \,$(x \leq_X y) \land (y \leq_X z) \leq (x \leq_X z)$\,
+                  \end{itemize}
+          \end{itemize}
+    \item Construct \textbf{Bool}-\ref{V-category|category|referenced} from a \ref{Preorder|preorder|referenced}: \,
+          \begin{itemize}
+            \item Let $Ob(X)=X$ and define $\mathcal{X}(x,y)=true$ iff $x \leq_X y$
+            \item The two constraints on preorders give us our two required constraints on enriched categories.
+          \end{itemize}\,
+  \end{itemize}

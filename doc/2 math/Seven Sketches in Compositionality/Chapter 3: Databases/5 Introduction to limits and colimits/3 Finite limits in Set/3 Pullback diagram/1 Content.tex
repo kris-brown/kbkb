@@ -1,0 +1,13 @@
+
+\begin{itemize}
+    \item If $\mathcal{J}$ is presented by the \emph{cospan} graph $\boxed{\overset{x}\bullet \xrightarrow{f} \overset{a}\bullet \xleftarrow{g}\overset{y}\bullet}$ then its limit is known as \,a \emph{pullback}\,.
+    \item Given the diagram $X \xrightarrow{f}A\xleftarrow{g}Y$, the \,pullback\, is the cone shown below:
+
+    \item \begin{tikzcd}C \arrow[d, "c_x"'] \arrow[rd, "c_a"] \arrow[r, "c_y"] & Y \arrow[d, "g"] \\X \arrow[r, "f"']                                      & A               \end{tikzcd}
+
+    \item Because the diagram commutes, the diagonal arrow is superfluous. One can denote \,pullbacks\, instead like so:
+
+          \begin{tikzcd}X \times_A Y_\lrcorner \arrow[d, "c_x"'] \arrow[r, "c_y"] & Y \arrow[d, "g"] \\X \arrow[r, "f"']                                         & A               \end{tikzcd}
+
+    \item The \,pullback\, picks out the $(X,Y)$ pairs which \,map to the same output\,.
+  \end{itemize}

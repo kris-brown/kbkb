@@ -94,7 +94,7 @@ preamb = intercalate "\n" $ ["\\documentclass[12pt,a4paper]{report}"] ++ ((
     "\\tikzset{ >=stealth', punkt/.style={ rectangle, rounded corners, \
     \draw=black, very thick, text width=6.5em,minimum height=2em, text \
     \centered}, pil/.style={ ->, thick, shorten <=2pt, shorten >=2pt,}}",
-    "\\begin{document}\n"]
+    "\\begin{document}\n\\batchmode\n"]
 
 hierarchy :: [Text]
 hierarchy = ["part", "chapter", "section", "subsection", "subsubsection",

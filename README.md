@@ -20,7 +20,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - Convert directory of Latex into HTML + PDF
 - Image/Tikz diagram, table of contents, footnotes, bibliography rendering
 - Collapsible subsections
-- Up / Prev / Next HTML buttons
+- Up / Prev / Next / Random / Home HTML buttons
 - Preview links on hover
 - List of other pages that link to the current page
   - Go back to the specific part that linked it
@@ -35,29 +35,21 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 
 ## TODO
 - Parse markdown OR LaTeX
-- Sections should be able to have text interspersed with nested sections, rather
-  than only being able to have it at the start
+- Speed up html generation by reusing the html of subsections
+  - trouble with footnotes/citations, though
 - LaTeX errors are silent: prefer to fail noisily rather than just have blank
   space in final result
 - Content: Brandom lectures, math textbooks
-- Make more path-related things case-insensitive
-- Automatically detect broken links
-- Automatically verify no unicode, periods, apostrophes, slashes in titles of
-  files
-- Cache hash of tex before computing pdf, check before recomputing
-- move buttons to a header
-- 'Home page' (with overall ToC, search bar, references, ABOUT, filters)
-    - search
-    - filter by definition / proposition
-- comment system + postgres
+- Make uids case-insensitive
+- Compute pdfs (will need different ToLatex function)
+- search feature (possibly in <nav>)
+    - filter by definition / proposition, etc.
+- comment system (POST request online) and download comments to local filesystem
 - mouseover delay 1 second (so it doesn't pop up immediately) and better
   placement of the pop up.
 - Make the LaTeX compilation more parameterized (possibly with a TEX metadatum)
-- Better document the code
-- Integrate automatic flashcard generation from source
-- Modify the regex that operates on internal links so that it matches even when
-  there is no comment (separated by `|`), that way, we add the `.html` even in
-  the other case (needed when linking to a non-leaf-node of the directory tree).
+- Integrate automatic flashcard generation from source / alternatively just a toggle button to hide clozes on the website
+- Internal link fix currently requires us to have all three components.
 
 ## Inspirations
 - [Workflowy](https://www.workflowy.com/features/) / [Nested](https://orteil.dashnet.org/nested)

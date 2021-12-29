@@ -1,0 +1,24 @@
+
+
+\begin{itemize}
+    \item Just as adjunctions give rise to \ref{Closure operator|closure operator|referenced}s, from every closure operator we may construct an adjunction.
+    \item Let $P \xrightarrow{j} P$ be a \ref{Closure operator|closure operator|referenced}.
+    \item Get a new preorder by looking at a subset of $P$ fixed by $j$.
+          \begin{itemize}
+            \item $fix_j$ defined as \,$\{p \in P\ |\ j(p)\cong p\}$\,
+          \end{itemize}
+    \item Define a \ref{Galois connection|left adjoint|referenced} $P \xrightarrow{j} fix_j$ and \ref{Galois connection|right adjoint|referenced} $fix_j \xhookrightarrow{g} P$ as \,simply the inclusion function\,.
+    \item To see that $j \dashv g$, we need to verify $j(p) \leq q \iff p \leq q$
+          \begin{itemize}
+            \item Show $\rightarrow$:
+                  \begin{itemize}
+                    \item \,Because $j$ is a closure operator, $p \leq j(p)$
+                    \item $j(p) \leq q$ implies $p \leq q$ by transivity\,.
+                  \end{itemize}
+            \item Show $\leftarrow$:
+                  \begin{itemize}
+                    \item \,By \ref{Monotone map|monotonicity|referenced} of $j$ we have $p \leq q$ implying $j(p) \leq j(q)$
+                    \item  $q$ is a fix point, so the RHS is congruent to $q$, giving $j(p) \leq q$\,.
+                  \end{itemize}
+          \end{itemize}
+  \end{itemize}

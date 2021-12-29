@@ -1,0 +1,45 @@
+
+\begin{itemize}
+    \item  Consider the schema $\mathfrak{g} := \boxed{\overset{Email}\bullet \overset{sentBy}{\underset{receivedBy}{\rightrightarrows}} \overset{Address}\bullet}$
+    \item And an example instance: $\mathfrak{g}\xrightarrow{I}\mathbf{Set}$
+  \end{itemize}
+
+  \begin{minipage}{0.48\textwidth}
+    \begin{tabular}{|l|l|l|}
+      \hline
+      Email & SentBy & ReceivedBy \\ \hline
+      1     & Bob    & Grace      \\ \hline
+      2     & Grace  & Pat        \\ \hline
+      3     & Bob    & Emmy       \\ \hline
+      4     & Sue    & Doug       \\ \hline
+      5     & Doug   & Sue        \\ \hline
+      6     & Bob    & Bob        \\ \hline
+    \end{tabular}
+  \end{minipage}
+
+  \begin{itemize}
+    \item Data migration functors $\Sigma_!,\Pi_!$ go from $\mathcal{C}$ \textbf{Inst} to \textbf{1-Inst}, but we showed that \textbf{1-Inst} is equivalent to \,\textbf{Set}\, in \ref{Natural transformation to unit|Example 3.53|referenced}.
+    \item $\Sigma_!$ tells us the mailing groups, the "connected components" in $I$:
+  \end{itemize}
+
+  \begin{minipage}{0.48\textwidth}
+    \begin{tabular}{|l|}
+      \hline
+      1                  \\ \hline
+      Bob-Grace-Pat-Emmy \\ \hline
+      Sue-Doug           \\ \hline
+    \end{tabular}
+  \end{minipage}
+
+  \begin{itemize}
+    \item $\Pi_!$ tells us the emails that were sent from a person to themselves
+
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|}
+              \hline
+              1            \\ \hline
+              $Em_6$ (Bob) \\ \hline
+            \end{tabular}
+          \end{minipage}
+
+  \end{itemize}

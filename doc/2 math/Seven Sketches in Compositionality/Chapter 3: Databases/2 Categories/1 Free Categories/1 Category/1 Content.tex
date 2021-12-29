@@ -1,0 +1,17 @@
+
+A \emph{category}, $\mathcal{C}$
+
+\begin{itemize}
+    \item Need to specify a collection of objects, $Ob(\mathcal{C})$
+    \item For every two objects \emph{c} and \emph{d}, one specifies a set $\mathcal{C}(c,d)$ called \emph{morphisms} from \emph{c} to \emph{d}
+          \begin{itemize}
+            \item This set is called the \emph{hom-set} and \emph{morphism} is a shorthand for \emph{homomorphism}
+          \end{itemize}
+    \item For every object \emph{c} one specifies a morphism $id_c \in \mathcal{C}(c,c)$ called the \emph{identity morphism}
+    \item For every pair of morphisms $c \xrightarrow{f} d$ and $d \xrightarrow{g} e$, one specifies a morphism $c \xrightarrow{f;g}e$ called the \emph{composite} of \emph{f} and \emph{g}
+    \item Furthermore, these must satisfy two conditions:
+          \begin{enumerate}
+            \item unitality: composing with identities does not change anything
+            \item associativity: $(f;g);h = f;(g;h)$
+          \end{enumerate}
+  \end{itemize}

@@ -1,0 +1,21 @@
+
+
+\begin{itemize}
+    \item Let $A \xrightarrow{f} B$ be a set function, say between apples and buckets into which we put each apple.
+    \item The `\ref{Pullback along monotone|pullback|referenced} along \emph{f}' $\mathbb{P}(B) \xrightarrow{f^*} \mathbb{P}(A)$ maps each subset $B' \subseteq B$ to its preimage $f^{-1}(B') \subseteq A$
+          \begin{itemize}
+            \item It tells you \,for a set of buckets all the apples contained in total\,.
+            \item It is a \ref{Monotone map|monotonic|referenced} map which has a left and right adjoint: $f_! \dashv f^* \dashv f_*$
+          \end{itemize}
+    \item The \ref{Galois connection|left adjoint|referenced} $\mathbb{P}(A)\xrightarrow{f_!}\mathbb{P}(B)$ is given by the direct image
+          \begin{itemize}
+            \item $f_!(A') := \{b \in B\ |\ \exists a \in A': f(a)=b\}$
+            \item Tells you \,for a set of apples all the buckets that contain at least one of those apples\,.
+          \end{itemize}
+    \item The \ref{Galois connection|right adjoint|referenced} $\mathbb{P}(A) \xrightarrow{f_*} \mathbb{P}(B)$ is defined as follows:
+          \begin{itemize}
+            \item  $f_*(A') := \{b \in B\ |\ \forall a: f(a)=b \implies a \in A'\}$
+            \item Tells you \,all the buckets which are all-$A\prime$ (note that empty buckets vacuously satisfy this condition)\,.
+          \end{itemize}
+    \item Adjoints often turn out to have interesting semantic interpretations.
+  \end{itemize}

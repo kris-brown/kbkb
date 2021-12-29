@@ -1,9 +1,0 @@
-% TAG Def
-The \emph{pullback} of \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor} $\mathcal{D}\xrightarrow{I}\mathbf{Set}$ \emph{along} functor $\mathcal{C}\xrightarrow{F}\mathcal{D}$
-
-\begin{itemize}
-    \item  The composite \href{doc/1 math/Seven Sketches in Compositionality/Chapter 3: Databases/3 Functors, natural transformations, and databases/2 Functors/1 Functor}{functor} $\mathcal{C}\xrightarrow{F;I}\mathbf{Set}$
-    \item Given a natural transformation $I \overset{\alpha}\Rightarrow J$, there is a natural transformation $\alpha_F$ whose components (morphisms in \textbf{Set} from $(F;I)(c)$ to $(F;J)(c)$, for any $c \in \mathcal{C}$ are given by: $(\alpha_F)_c := \alpha_{F(c)}$
-          \begin{tikzcd}                                                                             &                                                                           & \! \arrow[dd,Rightarrow,"\alpha"] &     \\\mathcal{C} \arrow[r, "F"]& \mathcal{D}\arrow[rr, "I", bend left=60] \arrow[rr, "J"', bend right=60] && Set \\& \! \arrow[dd,Rightarrow,"\alpha_F"]& \!&     \\\mathcal{C} \arrow[rr, "F;I", bend left=60] \arrow[rr, "F;J"', bend right=60]&&Set&     \\&\!&&    \end{tikzcd}
-
-  \end{itemize}

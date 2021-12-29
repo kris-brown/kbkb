@@ -1,0 +1,14 @@
+\begin{itemize}
+    \item Given any function $S \xrightarrow{g} T$, we can induce a \ref{Galois connection|Galois connection|referenced} $Prt(S) \leftrightarrows Prt(T)$ between the sets of partitions of the domain and codomain.
+          \begin{itemize}
+            \item Determine the \ref{Galois connection|left adjoint|referenced} $Prt(S) \xrightarrow{g_!} Prt(T)$
+                  \begin{itemize}
+                    \item Starting with a given partition in $S$, obtain a partition in $T$ by saying two elements, $t_1,t_2$ are in the same partition if $\exists s_1 \sim s_2: g(s_1)=t_1 \land g(s_2)=t_2$
+                    \item This is not necessarily a transitive relation, so take the transitive closure.
+                  \end{itemize}
+            \item Determine the right adjoint $Prt(T) \xrightarrow{g^*} Prt(S)$
+                  \begin{itemize}
+                    \item Given a \ref{Partition|partition|referenced} of $T$, we say two elements in $S$ are connected iff $g(s_1) \sim g(s_2)$
+                  \end{itemize}
+          \end{itemize}
+  \end{itemize}

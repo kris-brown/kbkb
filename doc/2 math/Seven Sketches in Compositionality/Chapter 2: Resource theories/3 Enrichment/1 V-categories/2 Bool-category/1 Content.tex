@@ -1,0 +1,20 @@
+
+\begin{itemize}
+    \item  Consider the following \ref{Preorder|preorder|referenced}: \begin{tikzcd} & t & \\ & s \arrow[u] & \\q \arrow[ru] & & r \arrow[lu] \\ & p \arrow[ru] \arrow[lu] & \end{tikzcd}
+    \item As a \textbf{Bool}-\ref{V-category|category|referenced}, the objects are \,$Ob(\mathcal{X})=\{p,q,r,s,t\}$\,.
+          \begin{itemize}
+            \item For every pair, we need \,an element of \textbf{Bool}, so make it true if $x\leq y$\,
+            \item $true$ is the monoidal unit of \textbf{Bool}, and this obeys the two constraints of a $\mathcal{V}$ \ref{V-category|category|referenced}.
+          \end{itemize}
+    \item We can represent the \ref{Relation|binary relation|referenced} (hom-object) with a table:\,
+          \begin{minipage}{0.48\textwidth}
+            \begin{tabular}{|l|l|l|l|l|l|}
+              $\leq$ & p & q & r & s & t \\  \hline
+              p      & T & T & T & T & T \\ \hline
+              q      & F & T & F & T & T \\ \hline
+              r      & F & F & T & T & T \\ \hline
+              s      & F & F & F & T & T \\ \hline
+              t      & F & F & F & F & T
+            \end{tabular}
+          \end{minipage}\,
+  \end{itemize}

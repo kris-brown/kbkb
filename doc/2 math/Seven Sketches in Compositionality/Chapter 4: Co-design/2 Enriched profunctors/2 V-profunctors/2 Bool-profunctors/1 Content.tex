@@ -1,0 +1,20 @@
+
+\textbf{Bool}-\ref{V-profunctor|profunctors|referenced} and their interpretation as bridges
+
+  \begin{itemize}
+    \item Let's consider \textbf{Bool}-\ref{V-profunctor|profunctors|referenced}. Recall a preorder (\textbf{Bool}-\ref{V-category|category|referenced}) can be drawn as a Hasse diagram.
+    \item A \textbf{Bool}-\ref{V-profunctor|profunctor|referenced} $X \overset{\phi}{\nrightarrow} Y$ can look like this:
+
+          \begin{tikzcd}
+            & N \arrow[rrr, blue,dotted, bend left] \arrow[rrrrdd, blue, dotted, bend left] &                                             &              & e                       &   \\
+            W \arrow[ru] &                                                                    & E \arrow[lu] \arrow[rd, blue, dotted, bend right] & d \arrow[ru] &                         &   \\
+            & S \arrow[lu] \arrow[ru] \arrow[rrrd, blue, dotted, bend right]           &                                             & b \arrow[u]  &                         & c \\
+            &                                                                    &                                             &              & a \arrow[ru] \arrow[lu] &
+          \end{tikzcd}
+
+
+    \item With bridges coming from the \ref{V-profunctor|profunctor|referenced}, one can now use both paths to get from points in $X$ to points in $Y$.
+    \item There is a path from \emph{N} to \emph{e}, so $\phi(N,e)=$\,$true$\, but $\phi(W,d)=$\,$false$\,.
+    \item We could put a box around both preorders and define a new preorder, called the \,\emph{collage}\,.
+
+  \end{itemize}

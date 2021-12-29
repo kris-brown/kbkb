@@ -1,0 +1,20 @@
+
+\begin{itemize}
+    \item The category of graphs as a \ref{Functor category|functor category|referenced}
+    \item Schema for graphs: $\mathbf{Gr}:=\boxed{\overset{Arr}\bullet \overset{src}{\underset{tar}{\rightrightarrows}}\overset{Vert}\bullet}$
+    \item A graph \ref{Database instance|instance|referenced} has a set of points and a set of arrows, each of which has a source and target.
+    \item There is a bijection between graphs and \textbf{Gr} instances
+    \item The objects of \textbf{GrInst} are graphs, the morphisms are \emph{graph homomorphisms} (\ref{Natural transformation|natural transformations|referenced} between two \textbf{Gr} to \textbf{Set} \ref{Functor|functors|referenced})
+          \begin{itemize}
+            \item Each graph homomorphism contains two components, which are morphisms in \textbf{Set}:
+                  \begin{enumerate}
+                    \item \,$G(Vert) \xrightarrow{\alpha_{vert}} H(vert)$\,
+                    \item \,$G(Arr) \xrightarrow{\alpha_{arr}} H(Arr)$\,
+                  \end{enumerate}
+            \item Naturality conditions
+                  \begin{enumerate}
+                    \item \begin{tikzcd}G(Arr) \arrow[r, "\alpha_{Arr}"] \arrow[d, "G(src)"'] & H(Arr) \arrow[d, "H(src)"] \\G(Vert) \arrow[r, "\alpha_{Vert}"']                   & H(Vert)                   \end{tikzcd}
+                    \item \begin{tikzcd}G(Arr) \arrow[r, "\alpha_{Arr}"] \arrow[d, "G(tar)"'] & H(Arr) \arrow[d, "H(tar)"] \\G(Vert) \arrow[r, "\alpha_{Vert}"']                   & H(Vert)                   \end{tikzcd}
+                  \end{enumerate}
+          \end{itemize}
+  \end{itemize}

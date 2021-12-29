@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS img;
 -- Sum type: sections + contents (exactly one should have fk to each content elem)
 CREATE TABLE section (
 	id BIGINT PRIMARY KEY,
-	parent BIGINT NOT NULL REFERENCES section(id),
+	parent BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE,
 	ord SERIAL NOT NULL,
     uuid Text NOT NULL UNIQUE,
     title TEXT NOT NULL,

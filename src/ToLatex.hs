@@ -4,16 +4,17 @@ import qualified Data.Text as T
 import DB
 import System.Process (system)
 import Text.RawString.QQ ( r )
-import Database.PostgreSQL.Simple (Connection, execute)
-
+import Database.PostgreSQL.Simple (Connection, execute,query)
+import Control.Monad (when)
 packages :: [Text]
-packages = ["tikz", "tikz-cd", "hyperref", "amsmath", "amssymb", "amsthm"]
+packages = ["hyperref", "amsmath", "amssymb", "amsthm"]
 
 
-preamb :: Text
-preamb = intercalate "\n" $ ["\\documentclass[12pt,a4paper]{report}"] ++ ((
-  \p -> "\\usepackage{"<> p <> "}") <$> packages) ++ [
-    "\\begin{document}\n"]
+preamb :: Text -> Text
+preamb t = intercalate "\n" $ ["\\documentclass[12pt,a4paper]{report}"] ++ ((
+  \p -> "\\usepackage{"<> p <> "}") <$> tik++packages) ++ [
+    "\\begin{document}\n\\batchmode\n"]
+  where tik = if' ("tikz" `isInfixOf` t) ["tikz", "tikz-cd"] []
 
 -- Creating a latex body optimized for rendering to HTML
 -- We'll want a different function if we want one that's optimized for PDF
@@ -25,7 +26,7 @@ latexBody n (Sections (MData _ _ u) ss _) = T.concat $
 
 
 toLatex :: Section -> Maybe Section -> Text
-toLatex x parent = T.concat [preamb, upprevnext, pdflink,
+toLatex x parent = T.concat [preamb lb, upprevnext, pdflink,
                     "\n\\title{", title' x,
                     "}\n", lb,cit, "\n\\end{document}"]
   where
@@ -37,13 +38,17 @@ toLatex x parent = T.concat [preamb, upprevnext, pdflink,
 
 addTeX :: Connection -> Section -> IO ()
 addTeX c Content {} = pure ()
-addTeX c s@(Sections (MData _ _ u) ss _) = do
-  execute c q (toLatex s Nothing, u)
-  sequence_ $ addTeX c <$> ss
-    where q = "UPDATE section SET tex = ? WHERE uuid = ?;"
+addTeX c s@(Sections (MData ttl _ u) ss _) = do
+  b <- query c "SELECT tex FROM section WHERE uuid=?;" [u] :: IO [[Maybe Text]]
+  if' (b /= [[Nothing]]) (print $ "Skipping tex generation for " <> ttl) (do
+    let t = toLatex s Nothing
+    --when (ttl == "Exercise 1-1") $ putStrLn $ unpack t
+    execute c q (t, u)
+    sequence_ $ addTeX c <$> ss)
+  where q = "UPDATE section SET tex = ? WHERE uuid = ?;"
 
-test = do s <- loadDir "bkup_doc"
-          let res = unpack $ toLatex s Nothing
-          writeFile "tst/test.tex" res
-          system [r|pdflatex -output-directory=tst tst/test.tex|]
-          system [r|open tst/test.pdf|]
+-- test = do s <- loadDir "bkup_doc"
+--           let res = unpack $ toLatex s Nothing
+--           writeFile "tst/test.tex" res
+--           system [r|pdflatex -output-directory=tst tst/test.tex|]
+--           system [r|open tst/test.pdf|]

@@ -46,7 +46,7 @@ function RawBlock(el)
              shorten <=2pt,
              shorten >=2pt,}
   }]])
-    f:write("\\begin{document}\n")
+    f:write("\\begin{document}\n\\batchmode\n")
     f:write(src)
     f:write("\n\\end{document}\n")
     f:close()

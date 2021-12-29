@@ -1,0 +1,9 @@
+
+A functor $\mathcal{C}\xrightarrow{L}\mathcal{D}$ is \emph{left adjoint} to a functor  $\mathcal{D}\xrightarrow{R}\mathcal{C}$
+
+\begin{itemize}
+    \item  For any $c \in C$ and $d \in D$, there is an \ref{Isomorphism|isomorphism|referenced} of hom-sets: $\alpha_{c,d}: \mathcal{C}(c,R(d)) \xrightarrow{\cong} \mathcal{D}(L(c),d)$ that is natural in \emph{c} and \emph{d}.
+    \item Given a morphism $c \rightarrow{f} R(d)$ in $\mathcal{C}$, its image $g:=\alpha_{c,d}(f)$ is called its \emph{mate} (and vice-versa)
+    \item To denote the adjunction we write $L \dashv R$ or \begin{tikzcd}\mathcal{C} \arrow[rr, "L", bend left] & \Rightarrow & \mathcal{D} \arrow[ll, "R", bend left]\end{tikzcd}
+
+  \end{itemize}

@@ -1,0 +1,21 @@
+\begin{itemize}
+    \item  Whenever you have 10 W of power, you also have 5 W ($5 W \leq 10 W$)
+    \item The requirement that the \ref{Feasilibiliy relation|feasibility relation map|referenced} is \ref{Monotone map|monotone|referenced} says that if $x' \leq_X x$ and $y \leq_Y y'$, then $\phi(x,y) \leq_{Bool} \phi(x',y')$
+          \begin{itemize}
+            \item If \emph{x} can be obtained from \emph{y}, something easier to obtain than \emph{x} can also be obtained from \emph{y}
+            \item If \emph{x} can be obtained from \emph{y}, then \emph{x} can be obtained from something harder to obtain than \emph{y}
+          \end{itemize}
+    \item This chapter should make the following table clear:
+  \begin{minipage}{0.48\textwidth}
+
+    \begin{tabular}{|l|l|}
+      \hline
+      \textbf{Bool}-\ref{V-category|category|referenced}  & \ref{Preorder|preorder|referenced}            \\ \hline
+      \textbf{Bool}-\ref{V-functor|functor|referenced}   & \ref{Monotone map|monotone map|referenced}        \\ \hline
+      \textbf{Bool}-\ref{V-profunctor|profunctor|referenced} & \ref{Feasilibiliy relation|feasibility relation|referenced} \\ \hline
+    \end{tabular}
+  \end{minipage}
+
+  \item \textbf{Bool} is a \ref{Quantale|quantale|referenced}, meaning it \ref{Quantale is SMP with all joins|has all joins|referenced} and a closure operation, $\mathbb{B}\times\mathbb{B}\xrightarrow{\Rightarrow}\mathbb{B}$. The closure operation must satisfy $b \land c \leq d$ iff $b \leq (c \Rightarrow d)$. It is the fact that \textbf{Bool} is a quantale that makes this chapter work; we could alternatively use \ref{Cost SMP|Cost|referenced} and obtain the \emph{cost} of obtaining $x$ from $y$, not just whether or not it's possible.
+
+  \end{itemize}

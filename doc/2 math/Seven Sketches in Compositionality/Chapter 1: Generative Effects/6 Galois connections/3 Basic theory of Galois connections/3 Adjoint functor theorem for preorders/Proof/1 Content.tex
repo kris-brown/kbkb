@@ -1,0 +1,25 @@
+\begin{itemize}
+    \item Given a right adjoint, construct the \ref{Galois connection|left adjoint|referenced} by:
+          \begin{itemize}
+            \item $f(p) := \bigwedge\{q \in Q\ |\ p \leq g(q)\}$
+            \item First need to show this is \ref{Monotone map|monotone|referenced}:
+                  \begin{itemize}
+                    \item If $p \leq p'$, the relationship between the joined sets of $f(p)$ and $f(p')$ is \,that the latter is a subset of the former.\,
+                    \item By \ref{Meets of subsets|Proposition 1.91|referenced} we infer that $f(p) \leq f(p')$.
+                  \end{itemize}
+            \item Then need to show that it is satisfies the \ref{Galois connection|left adjoint|referenced} property:
+                  \begin{itemize}
+                    \item Show that $p_0 \leq g(f(p_0))$
+                          \begin{itemize}
+                            \item  $p_0 \leq \bigwedge \{g(q)\ |\ p_0 \leq g(q)\} \cong g(\bigwedge\{q\ |\ p_0 \leq g(q)\}) = g(f(p_0))$
+                            \item The first inequality comes from the fact that \,the \ref{Meet and join|meet|referenced} of the set (of which $p_0$ is a lower bound) is a greatest lower bound\,.
+                            \item The congruence comes from the fact that \,\ref{Galois connection|right adjoints|referenced} preserve \ref{Meet and join|meets|referenced}\,.
+                          \end{itemize}
+                    \item Show that $f(g(q_0)) \leq q_0$
+                          \begin{itemize}
+                            \item $f(g(q_0)) = \bigwedge\{q\ |\ g(q_0) \leq g(q)\} \leq \bigwedge \{q_0\} = q_0$
+                            \item The first inequality comes from \,\ref{Meets of subsets|Proposition 1.91|referenced} since $\{q_0\}$ is a subset of the first set\,.
+                            \item The second equality is \,a property of the \ref{Meet and join|meet|referenced} of single element sets\,.                \end{itemize}
+                  \end{itemize}              \end{itemize}
+    \item Proof of a left adjoint construction (assuming it preserves joins) is dual.      \end{itemize}
+

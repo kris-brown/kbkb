@@ -15,7 +15,7 @@ CREATE TYPE tag_type AS ENUM (
 -- Sum type: sections + contents (exactly one should have fk to each content elem)
 CREATE TABLE section (
 	id BIGINT PRIMARY KEY,
-	parent BIGINT NOT NULL REFERENCES section(id),
+	parent BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE ,
 	ord SERIAL NOT NULL,
 	UNIQUE (id, ord)
 );
@@ -23,7 +23,7 @@ CREATE TABLE section (
 
 CREATE TABLE sections (
 	id BIGINT PRIMARY KEY,
-	sect BIGINT NOT NULL REFERENCES section(id),
+	sect BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE,
     tag tag_type NOT NULL,
     title TEXT NOT NULL,
     uuid TEXT NOT NULL UNIQUE
@@ -32,12 +32,12 @@ CREATE TABLE sections (
 
 CREATE TABLE contents (
     id BIGINT PRIMARY KEY,
-	sect BIGINT NOT NULL REFERENCES section(id)
+	sect BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE
 );
 
 CREATE TABLE comments (
 	id SERIAL PRIMARY KEY,
-	sect BIGINT NOT NULL REFERENCES sections(id),
+	sect BIGINT NOT NULL REFERENCES sections(id) ON DELETE CASCADE,
 	email TEXT NOT NULL,
 	tstamp TEXT NOT NULL,
 	body TEXT NOT NULL
@@ -46,21 +46,21 @@ CREATE TABLE comments (
 -- Sum type: IntLink + LaTeX (exactly one should have fk to each content elem)
 CREATE TABLE content (
     id SERIAL PRIMARY KEY,
-	cont BIGINT NOT NULL REFERENCES contents(id),
+	cont BIGINT NOT NULL REFERENCES contents(id) ON DELETE CASCADE,
 	ord SERIAL NOT NULL,
 	UNIQUE (id, ord)
 );
 
 CREATE TABLE latex (
     id SERIAL PRIMARY KEY,
-    cont BIGINT NOT NULL REFERENCES content(id),
+    cont BIGINT NOT NULL REFERENCES content(id) ON DELETE CASCADE,
     val TEXT NOT NULL
 );
 
 CREATE TABLE intlink (
     id SERIAL PRIMARY KEY,
     uuid TEXT NOT NULL, -- implicitly references SECTION.uid
-    cont BIGINT NOT NULL REFERENCES content(id),
+    cont BIGINT NOT NULL REFERENCES content(id) ON DELETE CASCADE,
     display TEXT NOT NULL,
     comm TEXT
 );

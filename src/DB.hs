@@ -3,6 +3,7 @@ module DB
    toDB, addURL, popWeb, resetDB, isSections ) where
 import Data.Tuple.Extra (uncurry3)
 import Data.Hashable ( Hashable, hash )
+import qualified Data.Set as S
 import Text.Read (readMaybe)
 import Data.List (sort)
 import GHC.Generics (Generic)
@@ -36,6 +37,9 @@ commFile = "comm.csv"
 if' :: Bool -> a -> a -> a
 if' True x _ = x
 if' False _ y = y
+
+swap :: (a, b) -> (b, a)
+swap (x, y) = (y, x)
 
 strip::Text->Text
 strip = T.filter p . f
@@ -127,7 +131,7 @@ parseRef t = case splitOn "|" t of
   [x,y,z] -> (x,y,z)
   _ -> error $ unpack t
 
--- Reading/writing to filesystem
+-- Reading from filesystem
 --------------------------------
 -- Load a directory
 loadDir :: FilePath -> IO Section
@@ -147,27 +151,31 @@ loadDirElement fp s = do bool <- doesFileExist pth
   where pth = fp <> "/" <> s
         loadTxt = fmap (Content . pack) . readFile
 
+-- Writing to filesystem
+--------------------------------
 -- Write Sections to directories
 writeSection :: Section -> FilePath -> IO ()
 writeSection s@(Sections md ss cm) fp = do
-    putStrLn $ "writing md " <> show md <> "\n\t to " <> fp
-    putStrLn $ "creating " <> newdir
     createDirectory newdir
     writeFile (newdir <> commFile) $ writeComments cm
     writeFile (newdir <> mdataFile) $ writeMData md
     forM_ (zip [1..] ss) f
-  where dname = unpack $ strip $ title $ md
+  where dname = unpack $ strip $ title md
         newdir = fp <> dname <> "/"
-        f (i, (Content n)) = writeFile (newdir <> show i <> "Content.tex") $ unpack n
+        f (i, Content n) = writeFile (newdir <> show i <> "Content.tex") $ unpack n
         f (i, s) = writeSection s (newdir <> show i)
 writeSection _ _ = error ""
 
--- Reading/writing to database
-------------------------------
+-- Writing to normalized database
+---------------------------------
 -- Top-level call to write to database
 toDB :: Connection -> Section -> IO ()
-toDB c s = toDB'' c (hash s) (1, s)
+toDB c s = do
+  n <- query_ c "SELECT COUNT(1) FROM section" :: IO [[Int]]
+  b <- checkId c (hash s) "section"
+  if' b (putStrLn "No changes detected") (toDB'' c (hash s) (1, s))
 
+-- Break up text into non-internal-link and internal-link chunks and insert
 contentToDB:: Connection -> Int -> (Bool, Int, Text) -> IO ()
 contentToDB c contId (isHead, ord, txt) = do
     unless (T.null t1) (do
@@ -186,34 +194,46 @@ contentToDB c contId (isHead, ord, txt) = do
         (t1, t2) = if' isHead ("", txt) (breakOn "}" txt)
         removeBracket = if' isHead id T.tail
 
-
+-- Add Section to DB
 toDB' :: Connection -> Section -> IO ()
 toDB' c s@(Content n) = do
-    execute c "INSERT INTO contents (id, sect) VALUES (?,?)" [hash n, hash s]
-    sequence_  $ contentToDB c (hash n) <$> contentArgs
+    bn <- checkId c (hash n) "contents"
+    unless bn $ execute c cq [hash n, hash s] >> pure ()
+    sequence_ $ contentToDB c (hash n) <$> contentArgs
   where contentArgs = zip3 ((==1) <$> [1..]) [1..] (splitOn "\\ref" n)
-toDB' c s@(Sections m b cmt) = do
+        cq = "INSERT INTO contents (id, sect) VALUES (?,?)"
+
+toDB' c s@(Sections m ss cmt) = do
+    n <- query_ c "SELECT COUNT(1) FROM section" :: IO [[Int]]
+    ts <- query_ c "SELECT title FROM sections" :: IO [[Text]]
+    --print $ "ADDING section " <> unpack (title m) <> " w/ " <> show n <> "ROWS IN section and, in sections: " <> show ts
+
+    b <- checkTxtDB c (uid m) "uuid" "sections"
+    when b (putStrLn $ show m <> "ABOUT TO EXECUTE " <> show dq)
+    when b (execute c dq [uid m] >> pure ())
+    when b (putStrLn $ "EXECUTED " <> show dq)
+
     execute c q (hash s, hash s, show $ tag m, title m, uid m)
-    executeMany c q2 $ cmts <$> cmt
-    sequence_ $ toDB'' c (hash s) <$> zip [1..] b
+    executeMany c q2 (cmts <$> cmt)
+    sequence_ $ toDB'' c (hash s) <$> zip [1..] ss
   where
     q = "INSERT INTO sections (id, sect, tag, title, uuid) VALUES (?,?,?,?,?)"
     q2 = "INSERT INTO comments (sect, email, tstamp, body) VALUES (?,?,?,?)"
+    uq = "UPDATE sections SET (id, sect, tag, title) WHERE uuid=?"
     cmts (Comment x y z) = (hash s, x, y, z)
+    dq = "DELETE FROM section USING sections WHERE \
+          \section.id=sections.sect AND sections.uuid=?"
 
+-- Add a child to DB (establish `parent` relation and finish w/ call to toDB')
 toDB'' :: Connection -> Int -> (Int,Section) -> IO ()
-toDB'' c parentId (ordId, s) = do b <- checkId c (hash s) "section"
-                                  when b $ do
-                                     execute c q (hash s, parentId, ordId)
-                                     toDB' c s
+toDB'' c parentId (ordId, s) =
+  do b <- checkId c (hash s) "section"
+     unless b $ do execute c q (hash s, parentId, ordId)
+                   toDB' c s
     where q = "INSERT INTO section (id, parent, ord) VALUES (?,?,?)"
 
--- Get whether a particular table has a particular primary key
-checkId :: Connection -> Int -> String -> IO Bool
-checkId c i s = null <$> (query c q [i] :: IO [[Int]])
-  where q = Query $ "SELECT 1 FROM " <> BSU.fromString s <> " WHERE id = ?"
-
-
+-- Read from normalized DB
+--------------------------
 -- Get the top-level section from DB
 fromDB :: Connection -> IO Section
 fromDB c = do [[i]] <- query_ c "SELECT id FROM section WHERE id=parent"
@@ -259,21 +279,79 @@ fromDB' c i = do
     qmd = "SELECT title, tag::text, uuid FROM sections WHERE sect=?"
     q' = query c "SELECT 1 FROM contents WHERE sect=?" [i] :: IO [[Int]]
     f [a,b,c] = MData a (read $ unpack b) c
+    f _ = undefined
     qc = "SELECT email,tstamp,body FROM comments WHERE sect = ? ORDER BY tstamp"
     qch = "SELECT id FROM section WHERE parent=? AND id<>? ORDER BY ord"
 
+-- Helper functions for particular queries
+------------------------------------------
 url :: Connection -> Section -> IO Text
 url c s = head . head <$> query c q [uid $ mdata s]
   where q = "SELECT urlpth FROM section WHERE uuid=?"
 
+-- Get whether a particular column contains a particular integer value
+checkDB :: Connection -> Int -> String -> String ->  IO Bool
+checkDB c i k s = not . null <$> (query c q [i] :: IO [[Int]])
+  where q = Query $ "SELECT 1 FROM " <> BSU.fromString s <> " WHERE " <>
+                    BSU.fromString k <> " = ?"
+
+-- Check if a primary key is in a table
+checkId :: Connection -> Int -> String  ->  IO Bool
+checkId c i = checkDB c i "id"
+
+-- Check if a text value exists in a particular column
+checkTxtDB :: Connection -> Text -> String -> String ->  IO Bool
+checkTxtDB c i k s = not . null <$> (query c q [i] :: IO [[Int]])
+  where q = Query $ "SELECT 1 FROM " <> BSU.fromString s <> " WHERE " <>
+                    BSU.fromString k <> " = ?"
+
+-- Modifying the web database
+-----------------------------
 -- Load content from denormalized database into web database
 popWeb :: Connection -> Connection -> IO ()
 popWeb dConn wConn = do
+    --It's not bad to recompute, so nuke link table first
+    webUIds <- query_ wConn "SELECT uuid FROM section" :: IO [[Text]]
+    execute_ wConn "TRUNCATE TABLE link"
+    webUIds' <- query_ wConn "SELECT uuid FROM section" :: IO [[Text]]
+    if' (webUIds == webUIds') (pure 1) (error "UIds changed unexpectedly")
+    -- Add sections
+    ---------------
+    -- Get sections from denormalized DB
     sectData <- query_ dConn q1 :: IO [(Int,Int,Int,Text,Text)]
-    executeMany wConn q2 sectData
+    -- Get existing sections from web DB
+    webIds <- query_ wConn "SELECT id FROM section" :: IO [[Int]]
+    let webIdSet = S.fromList $ head <$> webIds
+    -- Compute sections that are new/ have been modified
+    let sD = filter (\(x,_,_,_,_)->S.notMember x webIdSet) sectData
+    putStrLn $ "# of new/modified sections: " <> show (length sD)
+    let newUids = (\(_,_,_,x,_)->x) <$> sD -- new/modified uuids
+    putStrLn $ "NewUids " <> show newUids
+
+    -- Before we delete, we need to change the `parent` FK from the deleted
+    -- thing to the replacement before deleting, otherwise CASCADE will remove
+    -- rows that have not been changed
+    let fakeSD = (\(i,p,o,u,t)->(i,p,o,show i, t)) <$> sD
+    -- We insert with a fake uid because there may be a conflict with existing
+    -- sections.
+    executeMany wConn q2 fakeSD
+    let newIds =  (\(i,p,o,u,t)->(i,u)) <$> sD
+    forM_ newIds (execute wConn modq)
+    -- Delete any row of web DB that has a uuid whose content has been modified
+    forM_ newUids (\newUid-> do b <- checkTxtDB wConn newUid "uuid" "section"
+                                when b $ execute wConn qdel [newUid] >> pure ())
+    -- Fix the fake uids we created earlier
+    forM_ newIds $ execute wConn qfix . swap
+
+    -- Set link table.
+    ------------------
+    webUIds <- query_ wConn "SELECT uuid FROM section" :: IO [[Text]]
+    putStrLn $ "Setting link w/ uuids " <> show webUIds
+    -- Get link data from denorm database
     linkData <- query_ dConn q3 :: IO [(Text,Text,Text,Text)]
-    -- Get IDs for
+    -- Get IDs that are implicitly given by UUIDs
     linkData' <- sequence $ getId <$> linkData
+    -- Insert linkdata
     executeMany wConn q4 linkData'
     pure ()
   where q1 = "SELECT section.id,parent,ord,uuid,title \
@@ -286,13 +364,20 @@ popWeb dConn wConn = do
               \ JOIN sections ON (section.parent = sections.sect);"
         q4 = "INSERT INTO link (src,tgt,display,comm,repl) VALUES (?,?,?,?,?)"
         q5 = "SELECT id FROM section WHERE uuid=?"
+        qdel = "DELETE FROM section WHERE uuid=?"
+        modq = "UPDATE section SET parent = ? FROM section AS ParentSection \
+              \WHERE ParentSection.id = section.parent AND ParentSection.uuid=?"
+        qfix = "UPDATE section SET uuid = ? WHERE id = ?"
         getId tup@(u1,u2,x2,x3) = do
           -- pattern match failure here IF we have broken internal link
-          [[i1]] <- query wConn q5 [u1] :: IO [[Int]]
+          i1' <- query wConn q5 [u1] :: IO [[Int]]
           i2' <- query wConn q5 [u2] :: IO [[Int]]
+          let i1 = case i1' of
+                        [[i]] -> i
+                        _ -> error $ show (tup, i1')
           let i2 = case i2' of
                         [[i]] -> i
-                        _ -> error $ show tup
+                        _ -> error $ show (tup, i2')
           return (i1,i2, x2, x3, intercalate "|" [u2,x2,x3])
 
 addURL :: Connection -> Text -> Section -> IO ()
@@ -303,6 +388,8 @@ addURL c prevURL s@(Sections (MData _ _ u) ss _) = do
     where q = "UPDATE section SET urlpth = ? WHERE uuid = ?;"
           newURL = prevURL <> "/" <> u
 
+-- Testing
+----------
 test :: IO Section
 test = do resetDB
           c <- normc

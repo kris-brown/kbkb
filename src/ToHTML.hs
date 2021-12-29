@@ -29,12 +29,15 @@ nEnd = T.length endDelim
 -- Modify HTML
 fixHTML :: Connection -> Bool -> Section -> Bracket -> Text -> Text -> IO Text
 fixHTML cn outer s@(Sections m ss c) (Bracket _ _ bs) t footnote
- | ls /= lb = error $ show ls <> " != " <> show lb
+ --  | trace (unpack $ if' outer (T.concat ["TITLE ", title m, "\n", t]) "") False = undefined
+ | ls /= lb = error $ P.concat [show m, "\n\t", show ls,
+                                " != ", show lb]
  | otherwise = do body <- sequence ioProcessedReg
                   bklinks <- backLinks cn s
                   nav <- mkNav cn s
+                  rand <- pack <$> randLink cn
                   overallHead <- pack <$> readFile "src/html/overallhead.html"
-                  let res = concat [[if' outer (overallHead <> titl <> nav) ""], body,
+                  let res = concat [[if' outer (overallHead <> rand <> endHead <> titl <> nav ) ""], body,
                                     [bklinks], if' outer [footnote, "</body></html>"] [""]]
                   return $ T.concat res
   where ss' = filter isSections ss
@@ -42,6 +45,7 @@ fixHTML cn outer s@(Sections m ss c) (Bracket _ _ bs) t footnote
         reg = getRegions s t --regions (zip ss' bs) $ T.length t
         ioProcessedReg = processRegion cn t <$> reg
         titl = "\n<h1 class=\"title\">"<> title m <>"</h1>"
+        endHead = "\n</head>\n<body>\n"
 fixHTML _ _ _ _ _ _ = undefined
 
 getRegions :: Section -> Text -> [Either (Int, Int) (Section, Bracket)]
@@ -61,6 +65,10 @@ processRegion db t (Right (s@(Sections (MData ttl tg uuid) ss _),
                             Bracket i j bs)) = do
   u <- url db s
   let subText = takeDrop i j t
+  when (ttl == "Exercise 1-1") $ do
+    putStrLn $ P.concat ["text", unpack t, "i j", show (i,j), "\nSubText",
+                        unpack subText, "\nbrackets ", show
+                         (getBracket subText 0)]
   subContent <- fixHTML db False s (getBracket subText 0) subText ""
   return $ T.concat ["\n<details id=\"", uuid,
     "\">\n<summary style=\"background:",
@@ -78,7 +86,8 @@ mkNav c s = do
   let u = mkLnk "Up" up
   let n = mkLnk "Next" nxt
   let p = mkLnk "Previous" prv
-  return $ T.concat ["<nav><p> ", t, u, p, n, "</p></nav>"]
+  let r = " <a href=\"#\" onclick=\"randomSite();\">Random</a> "
+  return $ T.concat ["<nav><p> ", t, u, p, n, r, "</p></nav>"]
   where u = uid $ mdata s
         q1 = "SELECT s2.urlpth FROM section AS s1 JOIN section AS s2 ON \
               \(s2.id=s1.parent) WHERE s1.uuid=?"
@@ -127,7 +136,7 @@ initialHTML c fp s = do
   writeFile texpth $ unpack $ toLatex s Nothing
   system $ "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
   \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
-  \--lua-filter="<> tmplua <> " -s -o " <> tmpdir <> "/test.html "<>texpth
+  \--lua-filter='"<> tmplua <> "' -s -o '" <> tmpdir <> "/test.html'    '"<>texpth <> "'"
 
   -- Move generated images
   pngs <- filter isPng <$> listDirectory "."
@@ -239,19 +248,21 @@ tagToColor Default = "lightgrey"
 addHtml :: Connection -> FilePath -> Section -> IO ()
 addHtml c _ Content {} = pure ()
 addHtml c fp s@(Sections (MData ttl _ u) ss _) = do
-  (iHTML, iFootnote, imgs) <- initialHTML c fp s
-  let imgs' = [(a,Binary b) | (a,b)<-imgs]
-  forM_ imgs' (execute c q2) -- add images to DB
-  forM_ (fst <$> imgs) (removeFile . unpack) -- remove image files created
-  let starts = findIndices startDelim iHTML
-  let b = getBracket iHTML 0
-  t <- fixHTML c True s b iHTML iFootnote
-  rs <- reps c
-  let t' = repMany rs t
-  execute c q (t', u)
-  sequence_ $ addHtml c fp <$> ss
-    where q = "UPDATE section SET html = ? WHERE uuid = ?;"
-          q2 = "INSERT INTO img (iname, ival) VALUES (?,?)"
+  b <- query c "SELECT html FROM section WHERE uuid=?;" [u] :: IO [[Maybe Text]]
+  if' (b /= [[Nothing]]) (print $ "Skipping html generation for " <> ttl) (do
+    (iHTML, iFootnote, imgs) <- initialHTML c fp s
+    let imgs' = [(a,Binary b) | (a,b)<-imgs]
+    forM_ imgs' (execute c q2) -- add images to DB
+    forM_ (fst <$> imgs) (removeFile . unpack) -- remove image files created
+    let starts = findIndices startDelim iHTML
+    let b = getBracket iHTML 0
+    t <- fixHTML c True s b iHTML iFootnote
+    rs <- reps c
+    let t' = repMany rs t
+    execute c q (t', u)
+    sequence_ $ addHtml c fp <$> ss)
+  where q = "UPDATE section SET html = ? WHERE uuid = ?;"
+        q2 = "INSERT INTO img (iname, ival) VALUES (?,?)"
 reps :: Connection -> IO [(Text, Text)]
 reps c = do us <- query_ c "SELECT urlpth FROM section;" :: IO [[Text]]
             return $ (urlfix <$> us) ++ fixed
@@ -277,7 +288,6 @@ makeSite c sitepth = do
   -- copy toplevel files
   sequence_ $ (\x-> copyFile ("src/html/"<>x) (sitepth<>"/"<> x)) <$> [
     "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
-
   -- Add the pages
   urlhtmls <- query_ c "SELECT urlpth, html FROM section"
   sequence_ $ addUrlHtml sitepth <$> urlhtmls
@@ -289,3 +299,12 @@ addUrlHtml fp (u, h) = do
   createDirectoryIfMissing True $ fp <> dir
   writeFile (fp <> unpack u <> ".html") (unpack h)
     where dir = unpack $ intercalate "/" $ init (splitOn "/" u)
+
+randLink :: Connection -> IO String
+randLink c = do urls <- query_ c "SELECT urlpth FROM section" :: IO [[String]]
+                let urls' = (\x->"'"<>unpack rootURL<>head x<>".html',") <$> urls
+                return $ unlines $ before ++ urls' ++ after
+  where before = ["<script>", "var sites = ["]
+        after =  ["];", "function randomSite() {",
+                  "var i = parseInt(Math.random() * sites.length);",
+                  "location.href = sites[i];}", "</script>"]

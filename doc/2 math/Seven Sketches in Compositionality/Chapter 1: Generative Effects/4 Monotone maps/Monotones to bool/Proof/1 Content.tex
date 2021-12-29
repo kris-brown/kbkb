@@ -1,0 +1,13 @@
+\begin{itemize}
+    \item  Let $P \xrightarrow{f} \mathbb{B}$ be a \ref{Monotone map|monotone map|referenced}. The subset $f^{-1}(true)$ is an \ref{Upper set|upper set|referenced}. \begin{itemize}
+            \item Suppose $p \in f^{-1}(true)$ and $p \leq q$.
+            \item Then \,$true = f(p) \leq f(q)$\, because $f$ is monotonic.
+            \item But there is nothing strictly greater than $true$ in $\mathbb{B}$, so \,$f(q) = true$\, and therefore \,$q \in f^{-1}(true)$\, too.
+          \end{itemize}
+    \item Suppose $U \in U(P)$, and define $P\xrightarrow{f_U}\mathbb{B}$ such that $f_U=true \iff p \in U$
+          \begin{itemize}
+            \item Given there are only two values in $B$ and an arbitrary $p\leq q$, the only way for this to \emph{not} be monotone is for \,$f_U(p) \land \neg f_U(q)$\, but this defies the definition of an upper set.
+          \end{itemize}
+    \item The two constructions are mutually inverse.
+
+  \end{itemize}

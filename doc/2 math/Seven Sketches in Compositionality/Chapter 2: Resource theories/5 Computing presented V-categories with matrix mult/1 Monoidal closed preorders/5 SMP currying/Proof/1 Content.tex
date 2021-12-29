@@ -1,0 +1,17 @@
+\begin{itemize}
+    \item[a] The \ref{Galois connection|meaning|referenced} of $(- \otimes v) \dashv (v \multimap -)$ is \,exactly the condition of $\multimap$ in a \ref{Closed SMP|closed symmetric monoidal preorder|referenced}\,.
+    \item[b] This follows from (1), using the fact that \,\ref{Adjoints preserving meets and joins|left adjoints preserve joins|referenced}\,.
+    \item[c] This follows from (1) using \,the \ref{Galois connection alternate form|alternative characterization|referenced} of \ref{Galois connection|Galois connections|referenced}\,.
+          \begin{itemize}
+            \item Alternatively, start from definition of \ref{Closed SMP|closed symmetric monoidal preorder|referenced} and substitute $v \multimap w$ for $a$, and note by reflexivity that  $(v \multimap w) \leq (v \multimap w)$
+            \item Then we obtain $(v \multimap w) \otimes v \leq w$ (by symmetry of $\otimes$ we are done)
+          \end{itemize}
+    \item[d] Since $v \otimes I = v \leq v$, then \,\ref{Closed SMP|the closed condition|referenced}\, means that $v \leq I \multimap v$
+          \begin{itemize}
+            \item For the other direction, we have $I \multimap v = I \otimes (I \multimap v) \leq v$ by (3)
+          \end{itemize}
+    \item[e] We need $u \otimes (u \multimap v) \otimes (v \multimap w) \leq w$
+          \begin{itemize}
+            \item This follows from two applications of \,the third part of this proposition\,.
+          \end{itemize}
+  \end{itemize}
