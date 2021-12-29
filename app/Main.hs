@@ -11,8 +11,7 @@ import System.Directory (createDirectoryIfMissing,
                          removeDirectoryRecursive, doesDirectoryExist)
 
 flags = ["pdf", "sync", "clear", "gen"]
-sitePth = "site/"
-srcPth :: FilePath
+sitePth = "site2/"
 srcPth = "minidoc"
 dsStore = "find "<> srcPth <> " -name .DS_Store -delete"
 clearCmd2 = [r|ssh ksb@rice.stanford.edu rm -r afs-home/WWW/phil|]
@@ -54,23 +53,3 @@ main = do
 
     when ("sync" `elem` args) $ system syncCmd >> pure ()
 
-
-
--- main2 :: IO ()
--- main2 = do
---   args <- getArgs
---   if not (all (`elem` flags) args)
---   then
---     putStrLn $ "valid flags " <> show flags
---   else do
---     system dsStore
-
---     when ("clear" `elem` args)
---       (system clearCmd >> system clearCmd2 >> pure ())
-
---     when ("gen" `elem` args) $ do
---       ss <- getSections "doc" -- parses doc/ folder
---       sectionToHTML ("pdf" `elem` args) ss -- modifies site/ folder
-
---     when ("sync" `elem` args)
---       (system syncCmd >> pure ())

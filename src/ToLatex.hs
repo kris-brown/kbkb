@@ -24,11 +24,18 @@ latexBody n (Sections (MData _ _ u) ss _) = T.concat $
   ["\n\n\n SECTIONSTART\n\n\n"] ++ (f n <$> ss) ++ ["\n\n\nSECTIONEND\n\n\n"]
  where f n s =  latexBody (n+1) s
 
+fixCloze:: Text->Text
+fixCloze t = T.concat $ fixCloze'  <$> zip [1..] (T.splitOn "\\," t)
+fixCloze':: (Int, Text) -> Text
+fixCloze' (i,t)
+  | i == 1 = t
+  | even i = "OPENCLOZE" <> t
+  | otherwise = "CLOSECLOZE" <> t
 
 toLatex :: Section -> Maybe Section -> Text
 toLatex x parent = T.concat [preamb lb, upprevnext, pdflink,
                     "\n\\title{", title' x,
-                    "}\n", lb,cit, "\n\\end{document}"]
+                    "}\n", fixCloze lb,cit, "\n\\end{document}"]
   where
     lb = latexBody 0 x
     hascite = "\\cite" `isInfixOf` lb

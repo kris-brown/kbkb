@@ -180,3 +180,15 @@
       </script>
       <script type="text/javascript" src="https://web.stanford.edu/~ksb/phil/randHtml.js"></script>
 
+      <script>
+        function cloze() {
+          var elements = document.getElementsByClassName("cloze");
+          for(var i = 0; i < elements.length; i++) {
+            var x = elements[i]
+          if (x.style.display === "none") {
+            x.style.display = "inline";
+          } else {
+            x.style.display = "none";
+          }
+        }}
+        </script>

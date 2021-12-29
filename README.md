@@ -22,6 +22,7 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - Collapsible subsections
 - Up / Prev / Next / Random / Home HTML buttons
 - Preview links on hover
+- Flashcard mode
 - List of other pages that link to the current page
   - Go back to the specific part that linked it
   - Optionally include a description of the context of the link
@@ -48,7 +49,6 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
 - mouseover delay 1 second (so it doesn't pop up immediately) and better
   placement of the pop up.
 - Make the LaTeX compilation more parameterized (possibly with a TEX metadatum)
-- Integrate automatic flashcard generation from source / alternatively just a toggle button to hide clozes on the website
 - Internal link fix currently requires us to have all three components.
 
 ## Inspirations

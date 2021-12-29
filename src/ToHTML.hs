@@ -79,20 +79,23 @@ processRegion _ _ _ = undefined
 mkNav :: Connection -> Section -> IO Text
 mkNav c s = do
   tp <- query_ c "SELECT urlpth FROM section WHERE uuid='root'"
-  up <- query c q1 [u] :: IO [[Text]]
-  nxt <- query c (q2<>"+1") [u] :: IO [[Text]]
-  prv <- query c (q2<>"-1") [u] :: IO [[Text]]
+  up <- query c q1 [ud] :: IO [[Text]]
+  nxt <- query c (q2<>"+1") [ud] :: IO [[Text]]
+  prv <- query c (q2<>"-1") [ud] :: IO [[Text]]
   let t = mkLnk "Home" tp
   let u = mkLnk "Up" up
   let n = mkLnk "Next" nxt
   let p = mkLnk "Previous" prv
   let r = " <a href=\"#\" onclick=\"randomSite();\">Random</a> "
-  return $ T.concat ["<nav><p> ", t, u, p, n, r, "</p></nav>"]
-  where u = uid $ mdata s
+  noCloze <- null <$> (query c qcloze [ud] :: IO [[Int]])
+  let z = if' noCloze "" " <button onclick=\"cloze()\">Flashcard</button> "
+  return $ T.concat ["<nav><p> ", t, u, p, n, r, z, "</p></nav>"]
+  where ud = uid $ mdata s
         q1 = "SELECT s2.urlpth FROM section AS s1 JOIN section AS s2 ON \
               \(s2.id=s1.parent) WHERE s1.uuid=?"
         q2 = "SELECT s2.urlpth FROM section AS s1 JOIN section AS s2 ON \
                 \(s2.parent=s1.parent) WHERE s1.uuid=? AND s2.ord = s1.ord"
+        qcloze = "SELECT 1 FROM section WHERE uuid=? AND tex LIKE '%OPENCLOZE%'"
         mkLnk _ [] = ""
         mkLnk txt [[x]] = " "<>mkHref x txt<>" "
         mkLnk _ _ = undefined
@@ -270,6 +273,8 @@ reps c = do us <- query_ c "SELECT urlpth FROM section;" :: IO [[Text]]
                       T.concat ["href=\"", rootURL, u, ".html\""])
         urlfix _ = undefined
         fixed = [(startDelim, ""), (endDelim, ""),
+                 ("OPENCLOZE", "<span class=\"cloze\" style=\"display:none;background-color:yellow;color:red\"><b>?</b></span><span class=\"cloze\" style=\"white-space:nowrap;\">"),
+                 ("CLOSECLOZE", "</span>"),
                 ("img src=\"", "img src=\""<>rootURL<>"img/"),
                 ("src=\"img/", "src=\"" <> rootURL <> "img/"), -- from \includegraphics
                 ("role=\"doc-bibliography\">",
