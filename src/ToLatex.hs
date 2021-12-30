@@ -47,7 +47,8 @@ addTeX :: Connection -> Section -> IO ()
 addTeX c Content {} = pure ()
 addTeX c s@(Sections (MData ttl _ u) ss _) = do
   b <- query c "SELECT tex FROM section WHERE uuid=?;" [u] :: IO [[Maybe Text]]
-  if' (b /= [[Nothing]]) (print $ "Skipping tex generation for " <> ttl) (do
+  if' (b /= [[Nothing]]) (pure () -- print $ "Skipping tex generation for " <> ttl
+    ) (do
     let t = toLatex s Nothing
     --when (ttl == "Exercise 1-1") $ putStrLn $ unpack t
     execute c q (t, u)

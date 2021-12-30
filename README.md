@@ -35,9 +35,18 @@ A static site generated from a directory of TeX files. Currently hosted [here](h
   3. Denormalized database (good for querying)
 
 ## TODO
+- Mouseover preview too far to the right, now.
+- If the content of a file is not changed, then the HTML is complete unchanged.
+  - However, if a new thing references that file, then the backlinks section of
+    the HTML will remain unchanged
+  - Need to decouple the various chunks of HTML into different columns rather
+    than one big HTML column.
+  - Could do htmlbody htmlcitations htmlfootnotes htmlbacklinks htmlnav
 - Parse markdown OR LaTeX
+- Attach media/documents
 - Speed up html generation by reusing the html of subsections
   - trouble with footnotes/citations, though
+  - could just do my own html generation of footnotes/citations
 - LaTeX errors are silent: prefer to fail noisily rather than just have blank
   space in final result
 - Content: Brandom lectures, math textbooks

@@ -65,10 +65,6 @@ processRegion db t (Right (s@(Sections (MData ttl tg uuid) ss _),
                             Bracket i j bs)) = do
   u <- url db s
   let subText = takeDrop i j t
-  when (ttl == "Exercise 1-1") $ do
-    putStrLn $ P.concat ["text", unpack t, "i j", show (i,j), "\nSubText",
-                        unpack subText, "\nbrackets ", show
-                         (getBracket subText 0)]
   subContent <- fixHTML db False s (getBracket subText 0) subText ""
   return $ T.concat ["\n<details id=\"", uuid,
     "\">\n<summary style=\"background:",
@@ -98,7 +94,7 @@ mkNav c s = do
         qcloze = "SELECT 1 FROM section WHERE uuid=? AND tex LIKE '%OPENCLOZE%'"
         mkLnk _ [] = ""
         mkLnk txt [[x]] = " "<>mkHref x txt<>" "
-        mkLnk _ _ = undefined
+        mkLnk a b = error $ show (ud, a, b)
 
 mkHref :: Text -> Text -> Text
 mkHref a b = T.concat ["<a href=\"",rootURL, a,".html\">", b,"</a>"]
@@ -252,7 +248,8 @@ addHtml :: Connection -> FilePath -> Section -> IO ()
 addHtml c _ Content {} = pure ()
 addHtml c fp s@(Sections (MData ttl _ u) ss _) = do
   b <- query c "SELECT html FROM section WHERE uuid=?;" [u] :: IO [[Maybe Text]]
-  if' (b /= [[Nothing]]) (print $ "Skipping html generation for " <> ttl) (do
+  if' (b /= [[Nothing]]) (pure () --print $ "Skipping html gen for " <> ttl
+    ) (do
     (iHTML, iFootnote, imgs) <- initialHTML c fp s
     let imgs' = [(a,Binary b) | (a,b)<-imgs]
     forM_ imgs' (execute c q2) -- add images to DB
@@ -294,7 +291,9 @@ makeSite c sitepth = do
   sequence_ $ (\x-> copyFile ("src/html/"<>x) (sitepth<>"/"<> x)) <$> [
     "demo.css", "jquery.minipreview.js", "jquery.minipreview.css"]
   -- Add the pages
-  urlhtmls <- query_ c "SELECT urlpth, html FROM section"
+  -- TODO isn't it a problem that there can be NULLs? need to keep DB cleaner
+  -- and discard values that aren't being used currently
+  urlhtmls <- query_ c "SELECT urlpth, html FROM section WHERE html IS NOT NULL"
   sequence_ $ addUrlHtml sitepth <$> urlhtmls
     where f (iname,ival) = BS.writeFile (sitepth <> "/img/" <> iname) ival
 
