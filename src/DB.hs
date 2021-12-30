@@ -209,9 +209,9 @@ toDB' c s@(Sections m ss cmt) = do
     --print $ "ADDING section " <> unpack (title m) <> " w/ " <> show n <> "ROWS IN section and, in sections: " <> show ts
 
     b <- checkTxtDB c (uid m) "uuid" "sections"
-    when b (putStrLn $ show m <> "ABOUT TO EXECUTE " <> show dq)
+    --when b (putStrLn $ show m <> "ABOUT TO EXECUTE " <> show dq)
     when b (execute c dq [uid m] >> pure ())
-    when b (putStrLn $ "EXECUTED " <> show dq)
+    --when b (putStrLn $ "EXECUTED " <> show dq)
 
     execute c q (hash s, hash s, show $ tag m, title m, uid m)
     executeMany c q2 (cmts <$> cmt)
@@ -324,9 +324,9 @@ popWeb dConn wConn = do
     let webIdSet = S.fromList $ head <$> webIds
     -- Compute sections that are new/ have been modified
     let sD = filter (\(x,_,_,_,_)->S.notMember x webIdSet) sectData
-    putStrLn $ "# of new/modified sections: " <> show (length sD)
+    --putStrLn $ "# of new/modified sections: " <> show (length sD)
     let newUids = (\(_,_,_,x,_)->x) <$> sD -- new/modified uuids
-    putStrLn $ "NewUids " <> show newUids
+    --putStrLn $ "NewUids " <> show newUids
 
     -- Before we delete, we need to change the `parent` FK from the deleted
     -- thing to the replacement before deleting, otherwise CASCADE will remove
@@ -346,7 +346,7 @@ popWeb dConn wConn = do
     -- Set link table.
     ------------------
     webUIds <- query_ wConn "SELECT uuid FROM section" :: IO [[Text]]
-    putStrLn $ "Setting link w/ uuids " <> show webUIds
+    --putStrLn $ "Setting link w/ uuids " <> show webUIds
     -- Get link data from denorm database
     linkData <- query_ dConn q3 :: IO [(Text,Text,Text,Text)]
     -- Get IDs that are implicitly given by UUIDs

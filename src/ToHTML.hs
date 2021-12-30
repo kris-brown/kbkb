@@ -110,12 +110,12 @@ backLinks c s = do
   return $ if' (null lnks) ""
                ("<h3>Linked by</h3><ul>" <> intercalate "\n" lnks <> "</ul>")
     where
-      q = "SELECT src.urlpth, comm  FROM link \
+      q = "SELECT src.urlpth, src.title, comm  FROM link \
       \JOIN section as tgt ON (link.tgt=tgt.id) \
       \JOIN section as src ON (link.src=src.id) \
       \WHERE tgt.uuid = ?"
-      f (urlpth, desc) = T.concat [
-        "<li><a href=\"", rootURL, urlpth, ".html\">", desc, "</a></li>"]
+      f (urlpth, srcTitle, desc) = T.concat [
+        "<li><a href=\"", rootURL, urlpth, ".html\">", srcTitle, ": ", desc, "</a></li>"]
 
 -- Fix internal links
 processPlainText :: Connection -> Text -> IO Text

@@ -11,8 +11,8 @@ import System.Directory (createDirectoryIfMissing,
                          removeDirectoryRecursive, doesDirectoryExist)
 
 flags = ["pdf", "sync", "clear", "gen"]
-sitePth = "site2/"
-srcPth = "minidoc"
+sitePth = "site/"
+srcPth = "doc"
 dsStore = "find "<> srcPth <> " -name .DS_Store -delete"
 clearCmd2 = [r|ssh ksb@rice.stanford.edu rm -r afs-home/WWW/phil|]
 syncCmd = "rsync -r " <> sitePth <>
