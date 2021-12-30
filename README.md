@@ -1,6 +1,6 @@
 # KBKB: Knowledge Base
 
-A static site generated from a directory of TeX files. Currently hosted [here](https://web.stanford.edu/~ksb/phil/doc/phil.html).
+A static site generated from a directory of TeX files. Currently hosted [here]( ).
 
 ## HOW TO USE
 
