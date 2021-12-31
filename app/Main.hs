@@ -1,6 +1,7 @@
 module Main where
 import System.Process (system)
 import System.Environment (getArgs)
+import Data.Text (pack, Text)
 import Control.Monad (when, unless)
 import ToHTML (makeSite, addHtml)
 import DB (MData (..), Section (..), resetDB, loadDir, webc, normc,
@@ -18,6 +19,10 @@ clearCmd2 = [r|ssh ksb@rice.stanford.edu rm -r afs-home/WWW/phil|]
 syncCmd = "rsync -r " <> sitePth <>
           " ksb@rice.stanford.edu:afs-home/WWW/phil"
 
+ignore :: IO [Text]
+ignore = map pack . filter f . lines <$>  readFile "kbignore"
+  where f (x:_) = x /= '#'
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -26,6 +31,7 @@ main = do
     putStrLn $ "valid flags " <> show flags
   else do
 
+    ign <- ignore
     system dsStore
 
     -- Fresh start
@@ -37,7 +43,7 @@ main = do
     when ("gen" `elem` args) $ do
       -- Load data from files into memory and normalized db
       [c, c'] <- sequence [normc, webc]
-      s <- loadDir srcPth
+      s <- loadDir ign srcPth
       unless ("root" == uid (mdata s)) $ error "\n\nDID NOT POINT TO ROOT\n\n"
       toDB c s
       popNumChildren c

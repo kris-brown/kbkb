@@ -135,21 +135,22 @@ parseRef t = case splitOn "|" t of
 
 -- Reading from filesystem
 --------------------------------
--- Load a directory
-loadDir :: FilePath -> IO Section
-loadDir fp = do files <- filter (`notElem` ps) . sort <$> listDirectory fp
-                [m, c] <- sequence $ doesFileExist <$> ps'
-                mdata <- parseMData fp <$> if' m (readFile mpth) (pure "")
-                cdata <- parseComments <$> if' c (readFile cpth) (pure "")
-                contents <- sequence $ loadDirElement fp <$> files
-                return $ Sections mdata contents cdata
+-- Load a directory, with certain UIDs to ignore
+loadDir :: [Text] -> FilePath -> IO Section
+loadDir ign fp = do files <- filter (`notElem` ps) . sort <$> listDirectory fp
+                    [m, c] <- sequence $ doesFileExist <$> ps'
+                    mdata <- parseMData fp <$> if' m (readFile mpth) (pure "")
+                    cdata <- parseComments <$> if' c (readFile cpth) (pure "")
+                    contents <- if' (uid mdata `elem` ign)  (pure [])
+                                    (sequence $ loadDirElement ign fp <$> files)
+                    return $ Sections mdata contents cdata
     where ps = [mdataFile, commFile]
           ps'@[mpth, cpth] = ((fp <> "/") <>) <$> ps
 
 -- Process files and directories differently
-loadDirElement :: FilePath -> String -> IO Section
-loadDirElement fp s = do bool <- doesFileExist pth
-                         if' bool loadTxt loadDir pth
+loadDirElement :: [Text]->FilePath -> String -> IO Section
+loadDirElement ign fp s = do bool <- doesFileExist pth
+                             if' bool loadTxt (loadDir ign) pth
   where pth = fp <> "/" <> s
         loadTxt = fmap (Content . pack) . readFile
 
@@ -431,7 +432,7 @@ test :: IO Section
 test = do resetDB
           c <- normc
           putStrLn "loading bkup_doc"
-          s <- loadDir "bkup_doc"
+          s <- loadDir [] "bkup_doc"
 
           putStrLn "inserting loaded bkup_doc into DB"
           toDB c s
@@ -447,11 +448,11 @@ test = do resetDB
           putStrLn "writing to new dir"
           writeSection s tst
           putStrLn "loading from new dir"
-          s'' <- loadDir $ tst <> "KBKB"
+          s'' <- loadDir [] $ tst <> "KBKB"
           putStrLn "removing new dir and recreating"
           removeDirectoryRecursive $ tst <> "KBKB"
           writeSection s'' tst
-          s''' <- loadDir $ tst <> "KBKB"
+          s''' <- loadDir [] $ tst <> "KBKB"
           when (s'' /= s''') $ error "not equal"
           return s
   where tst = "tst/"

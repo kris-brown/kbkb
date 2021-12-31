@@ -13,13 +13,8 @@ A static site generated from a directory of TeX files. Currently hosted [here]( 
   - flag `clear` will wipe out the local `site/` folder (e.g. precomputed images)
   - flag `clear_remote` will wipe out the remote `site/` folder
 
-### Caveats
-- Don't use unicode, apostrophes, periods, slashes in titles of files (so do
-  `Exercise 1-1`, rather than `Exercise 1.1`)
-- Leading digits of file titles are stripped (these are just used to order)
-
 ## DONE
-- Convert directory of Latex into HTML + PDF
+- Convert directory of Latex into HTML
 - Image/Tikz diagram, table of contents, footnotes, bibliography rendering
 - Collapsible subsections
 - Up / Prev / Next / Random / Home HTML buttons
@@ -30,7 +25,6 @@ A static site generated from a directory of TeX files. Currently hosted [here]( 
   - Optionally include a description of the context of the link
 - Metadata parsing (file named `0` in a given folder)
     - Specify title, unique identifier, and tag.
-    - Tags like "Def" / "Exercise" used to color the section
 - Different interconvertable representations of the KB
   1. Directories of TeX files (good for writing long form)
   2. Normalized database (good for editing connections)
@@ -38,7 +32,6 @@ A static site generated from a directory of TeX files. Currently hosted [here]( 
 
 ## TODO
 - Mouseover preview too far to the right, now.
-- Cleaner way of ignoring certain folders (currently, I `mv` the section from `doc` to `bkup_doc`)
 - If the content of a file is not changed, then the HTML is complete unchanged.
   - However, if a new thing references that file, then the backlinks section of
     the HTML will remain unchanged
