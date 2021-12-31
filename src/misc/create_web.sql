@@ -10,6 +10,7 @@ CREATE TABLE section (
 	ord SERIAL NOT NULL,
     uuid Text NOT NULL UNIQUE,
     title TEXT NOT NULL,
+	n_children INT NOT NULL,
     tex TEXT,
     urlpth TEXT,
     html TEXT,

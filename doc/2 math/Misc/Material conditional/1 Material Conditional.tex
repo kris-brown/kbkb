@@ -1,0 +1,29 @@
+In logic, we see expressions like $P \implies Q$ a lot.
+\begin{itemize}
+    \item The symbol $\implies$ is read as `implies' and is also called the \href{https://en.wikipedia.org/wiki/Material_conditional}{material conditional}.
+    \item Logically/mathematically, it is a truth-function. \begin{itemize}
+    \item I.e. it merely takes in two yes-or-no bits of information and deterministically spits out a bit of information.
+    \item It is expressible as the following table: \begin{table}[]
+        \begin{tabular}{|l|l|l|}
+        \hline
+        $P$ & $Q$ & $P \implies Q$ \\ \hline
+        T & T & T \\ \hline
+        T & F & F \\ \hline
+        F & T & T \\ \hline
+        F & F & T \\ \hline
+        \end{tabular}
+        \end{table}
+        \item A simple characterization is to say that the only way to show that $P\implies Q$ is false is to show that $P$ is false and $Q$ is true.
+    \end{itemize}
+    \item It's \emph{meaning}, in brief, is an assertion that $Q$ being true can be asserted if $P$ is true.
+        \begin{itemize}
+        \item  There is a gap between these two characterizations, expressed in Lewis Carroll's \ref{tortoise|parable|referenced}.
+        \end{itemize}
+    \item A common example is: If $x$ is a bachelor, then $x$ is male.
+    \item The $\implies$ relation is `truth functional' - it only depends on the scenarios in which $P$ and $Q$ are true and says nothing about $P$ and $Q$ being related to each other in some deeper way. The following examples illustrate this:
+    \begin{itemize}
+        \item If $1+1=2$, then more than 10 people live on Earth. (this is the first row of the table)
+        \item If the moon is made of cheese, then $1+1=2$. (the third row)
+        \item If the moon is made of cheese, then $1+1=3$. (the fourth row)
+    \end{itemize}
+\end{itemize}

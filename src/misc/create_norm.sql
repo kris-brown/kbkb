@@ -17,6 +17,7 @@ CREATE TABLE section (
 	id BIGINT PRIMARY KEY,
 	parent BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE ,
 	ord SERIAL NOT NULL,
+	n_children BIGINT,
 	UNIQUE (id, ord)
 );
 

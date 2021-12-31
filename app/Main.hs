@@ -4,13 +4,13 @@ import System.Environment (getArgs)
 import Control.Monad (when, unless)
 import ToHTML (makeSite, addHtml)
 import DB (MData (..), Section (..), resetDB, loadDir, webc, normc,
-           addURL, popWeb, toDB)
+           addURL, popWeb, toDB, popNumChildren)
 import ToLatex (addTeX)
 import Text.RawString.QQ ( r )
 import System.Directory (createDirectoryIfMissing,
                          removeDirectoryRecursive, doesDirectoryExist)
 
-flags = ["pdf", "sync", "clear", "gen"]
+flags = ["pdf", "sync", "clear", "gen", "clear_remote", "clear_db"]
 sitePth = "site/"
 srcPth = "doc"
 dsStore = "find "<> srcPth <> " -name .DS_Store -delete"
@@ -29,10 +29,10 @@ main = do
     system dsStore
 
     -- Fresh start
-    when ("clear" `elem` args)
-      (sequence_ [resetDB, system clearCmd2 >> pure (),
-                  do b<- doesDirectoryExist sitePth
-                     when b $ removeDirectoryRecursive sitePth])
+    when ("clear_remote" `elem` args) $ system clearCmd2 >> pure ()
+    when ("clear_db" `elem` args) $ resetDB
+    when ("clear" `elem` args) (do b <- doesDirectoryExist sitePth
+                                   when b $ removeDirectoryRecursive sitePth)
 
     when ("gen" `elem` args) $ do
       -- Load data from files into memory and normalized db
@@ -40,6 +40,7 @@ main = do
       s <- loadDir srcPth
       unless ("root" == uid (mdata s)) $ error "\n\nDID NOT POINT TO ROOT\n\n"
       toDB c s
+      popNumChildren c
 
       -- Populate web database
       popWeb c c'

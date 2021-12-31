@@ -9,7 +9,9 @@ A static site generated from a directory of TeX files. Currently hosted [here]( 
   - flag `gen` populates `site/`
   - flag `sync` ssh copies `site/` to where the website is hosted
   - flag `pdf` will generate pdfs (currently broken)
-  - flag `clear` will wipe out the local and remote `site/` folders
+  - flag `clear_db` will wipe out the local DB representation (precomputed HTML)
+  - flag `clear` will wipe out the local `site/` folder (e.g. precomputed images)
+  - flag `clear_remote` will wipe out the remote `site/` folder
 
 ### Caveats
 - Don't use unicode, apostrophes, periods, slashes in titles of files (so do
@@ -36,6 +38,7 @@ A static site generated from a directory of TeX files. Currently hosted [here]( 
 
 ## TODO
 - Mouseover preview too far to the right, now.
+- Cleaner way of ignoring certain folders (currently, I `mv` the section from `doc` to `bkup_doc`)
 - If the content of a file is not changed, then the HTML is complete unchanged.
   - However, if a new thing references that file, then the backlinks section of
     the HTML will remain unchanged

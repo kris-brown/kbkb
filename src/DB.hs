@@ -1,11 +1,13 @@
 module DB
   (Section(..), TagType(..), MData(..), if' , title', loadDir, url, normc, webc,
-   toDB, addURL, popWeb, resetDB, isSections ) where
+   toDB, addURL, popWeb, resetDB, isSections, popNumChildren ) where
 import Data.Tuple.Extra (uncurry3)
 import Data.Hashable ( Hashable, hash )
 import qualified Data.Set as S
 import Text.Read (readMaybe)
-import Data.List (sort)
+import Data.List (sort, elemIndex)
+import Data.Graph (buildG, topSort)
+import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
 import qualified Data.Text as T
 import Data.Text ( Text, pack, unpack, splitOn, breakOn, intercalate)
@@ -318,24 +320,24 @@ popWeb dConn wConn = do
     -- Add sections
     ---------------
     -- Get sections from denormalized DB
-    sectData <- query_ dConn q1 :: IO [(Int,Int,Int,Text,Text)]
+    sectData <- query_ dConn q1 :: IO [(Int,Int,Int,Text,Text,Int)]
     -- Get existing sections from web DB
     webIds <- query_ wConn "SELECT id FROM section" :: IO [[Int]]
     let webIdSet = S.fromList $ head <$> webIds
     -- Compute sections that are new/ have been modified
-    let sD = filter (\(x,_,_,_,_)->S.notMember x webIdSet) sectData
+    let sD = filter (\(x,_,_,_,_,_)->S.notMember x webIdSet) sectData
     --putStrLn $ "# of new/modified sections: " <> show (length sD)
-    let newUids = (\(_,_,_,x,_)->x) <$> sD -- new/modified uuids
+    let newUids = (\(_,_,_,x,_,_)->x) <$> sD -- new/modified uuids
     --putStrLn $ "NewUids " <> show newUids
 
     -- Before we delete, we need to change the `parent` FK from the deleted
     -- thing to the replacement before deleting, otherwise CASCADE will remove
     -- rows that have not been changed
-    let fakeSD = (\(i,p,o,u,t)->(i,p,o,show i, t)) <$> sD
+    let fakeSD = (\(i,p,o,u,t,n)->(i,p,o,show i, t,n)) <$> sD
     -- We insert with a fake uid because there may be a conflict with existing
     -- sections.
     executeMany wConn q2 fakeSD
-    let newIds =  (\(i,p,o,u,t)->(i,u)) <$> sD
+    let newIds =  (\(i,_,_,u,_,_)->(i,u)) <$> sD
     forM_ newIds (execute wConn modq)
     -- Delete any row of web DB that has a uuid whose content has been modified
     forM_ newUids (\newUid-> do b <- checkTxtDB wConn newUid "uuid" "section"
@@ -354,9 +356,10 @@ popWeb dConn wConn = do
     -- Insert linkdata
     executeMany wConn q4 linkData'
     pure ()
-  where q1 = "SELECT section.id,parent,ord,uuid,title \
+  where q1 = "SELECT section.id,parent,ord,uuid,title,n_children \
              \FROM section JOIN sections USING (id)"
-        q2 = "INSERT INTO section (id,parent,ord,uuid,title) VALUES (?,?,?,?,?)"
+        q2 = "INSERT INTO section (id,parent,ord,uuid,title,n_children) \
+              \VALUES (?,?,?,?,?,?)"
         q3 = "SELECT sections.uuid,intlink.uuid,display,comm \
               \FROM intlink JOIN content ON (intlink.cont = content.id) \
               \ JOIN contents ON (content.cont = contents.id) \
@@ -387,6 +390,40 @@ addURL c prevURL s@(Sections (MData _ _ u) ss _) = do
   sequence_ $ addURL c newURL <$> ss
     where q = "UPDATE section SET urlpth = ? WHERE uuid = ?;"
           newURL = prevURL <> "/" <> u
+
+-- Getting number of children
+-----------------------------
+-- Topologically sort the UIDs in either database
+dag :: Connection -> IO [Text]
+dag c = do verts <- fmap head <$> (query_ c q1 :: IO [[Text]])
+           edges <- query_ c q2 :: IO [(Text,Text)]
+           let g = buildG (0, length verts - 1) [
+                                  (ei v1 verts, ei v2 verts) | (v1,v2)<- edges]
+           return [verts !! v | v <- topSort g]
+  where q1 = "SELECT uuid FROM sections"
+        q2 = "SELECT A2.uuid, B2.uuid FROM section AS A1 \
+              \JOIN sections AS A2 ON (A1.id=A2.id) \
+              \JOIN sections AS B2 ON (A1.parent=B2.id)"
+        ei a b = fromJust (elemIndex a b)
+
+-- Recursively count the number of Contents living within a given Section.
+popNumChildren :: Connection -> IO ()
+popNumChildren c = do execute_ c initNC
+                      [[rootID]] <- query_ c qR :: IO [[Int]]
+                      sects <- dag c
+                      forM_ sects (\s -> do [[x]] <- query c qS [s] :: IO [[Int]]
+                                            execute c qC (x,rootID,x)
+                                            pure ())
+                      execute_ c "UPDATE section SET n_children = 0 WHERE n_children IS NULL"
+                      return ()
+
+  where initNC = "UPDATE section SET n_children = 1 FROM contents \
+                  \WHERE contents.sect=section.id"
+        qS =  "SELECT id FROM sections WHERE uuid = ?"
+        qR = "SELECT id FROM sections WHERE uuid='root'"
+        qC = "WITH tmp AS (SELECT SUM(n_children) AS x \
+              \            FROM section WHERE parent=? AND id<>?)  \
+              \UPDATE section SET n_children = tmp.x FROM tmp WHERE id = ?"
 
 -- Testing
 ----------

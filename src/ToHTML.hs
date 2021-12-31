@@ -37,7 +37,7 @@ fixHTML cn outer s@(Sections m ss c) (Bracket _ _ bs) t footnote
                   nav <- mkNav cn s
                   rand <- pack <$> randLink cn
                   overallHead <- pack <$> readFile "src/html/overallhead.html"
-                  let res = concat [[if' outer (overallHead <> rand <> endHead <> titl <> nav ) ""], body,
+                  let res = concat [[if' outer (overallHead <> rand <> hTitl <> endHead <> titl <> nav ) ""], body,
                                     [bklinks], if' outer [footnote, "</body></html>"] [""]]
                   return $ T.concat res
   where ss' = filter isSections ss
@@ -45,6 +45,7 @@ fixHTML cn outer s@(Sections m ss c) (Bracket _ _ bs) t footnote
         reg = getRegions s t --regions (zip ss' bs) $ T.length t
         ioProcessedReg = processRegion cn t <$> reg
         titl = "\n<h1 class=\"title\">"<> title m <>"</h1>"
+        hTitl = "<title>"<> title m <> "</title>"
         endHead = "\n</head>\n<body>\n"
 fixHTML _ _ _ _ _ _ = undefined
 
@@ -66,22 +67,26 @@ processRegion db t (Right (s@(Sections (MData ttl tg uuid) ss _),
   u <- url db s
   let subText = takeDrop i j t
   subContent <- fixHTML db False s (getBracket subText 0) subText ""
+  [[ns]] <- query db qns [uuid] :: IO [[Int]]
   return $ T.concat ["\n<details id=\"", uuid,
-    "\">\n<summary style=\"background:",
-    tagToColor tg,";\" id=\"",uuid,"\"> \n\t<strong>", mkHref u ttl,
-    "</strong>\n</summary>\n<div id=\"", uuid,"\">",
-    subContent, "\n</div></details>\n"]
+    "\">\n<summary style=\"background:", tagToColor tg,";\" id=\"",uuid,
+    "\"> \n\t<strong>", mkHref u ttl,
+    "<span style=\"float: right\"><small>(", pack (show ns), ")</small></span>",
+    "</strong>\n</summary>\n<div id=\"", uuid,"\">", subContent,
+    "\n</div></details>\n"]
+  where qns = "SELECT n_children FROM section where uuid=?"
+
 processRegion _ _ _ = undefined
+
+
 mkNav :: Connection -> Section -> IO Text
 mkNav c s = do
   tp <- query_ c "SELECT urlpth FROM section WHERE uuid='root'"
   up <- query c q1 [ud] :: IO [[Text]]
   nxt <- query c (q2<>"+1") [ud] :: IO [[Text]]
   prv <- query c (q2<>"-1") [ud] :: IO [[Text]]
-  let t = mkLnk "Home" tp
-  let u = mkLnk "Up" up
-  let n = mkLnk "Next" nxt
-  let p = mkLnk "Previous" prv
+  let [t,u,n,p] = mkLnk <$> [
+                    ("Home", tp), ("Up", up), ("Next", nxt), ("Previous", prv)]
   let r = " <a href=\"#\" onclick=\"randomSite();\">Random</a> "
   noCloze <- null <$> (query c qcloze [ud] :: IO [[Int]])
   let z = if' noCloze "" " <button onclick=\"cloze()\">Flashcard</button> "
@@ -92,9 +97,9 @@ mkNav c s = do
         q2 = "SELECT s2.urlpth FROM section AS s1 JOIN section AS s2 ON \
                 \(s2.parent=s1.parent) WHERE s1.uuid=? AND s2.ord = s1.ord"
         qcloze = "SELECT 1 FROM section WHERE uuid=? AND tex LIKE '%OPENCLOZE%'"
-        mkLnk _ [] = ""
-        mkLnk txt [[x]] = " "<>mkHref x txt<>" "
-        mkLnk a b = error $ show (ud, a, b)
+        mkLnk (_, []) = ""
+        mkLnk (txt, [[x]]) = " "<>mkHref x txt<>" "
+        mkLnk a = error $ show (ud, a)
 
 mkHref :: Text -> Text -> Text
 mkHref a b = T.concat ["<a href=\"",rootURL, a,".html\">", b,"</a>"]
