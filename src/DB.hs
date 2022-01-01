@@ -1,6 +1,7 @@
 module DB
-  (Section(..), TagType(..), MData(..), if' , title', loadDir, url, normc, webc,
-   toDB, addURL, popWeb, resetDB, isSections, popNumChildren ) where
+  (Section(..), TagType(..), MData(..), FileType(..), if' , title', loadDir,
+  url, normc, webc, toDB, addURL, popWeb, resetDB, isSections, popNumChildren
+  ) where
 import Data.Tuple.Extra (uncurry3)
 import Data.Hashable ( Hashable, hash )
 import qualified Data.Set as S
@@ -10,9 +11,9 @@ import Data.Graph (buildG, topSort)
 import Data.Maybe (fromJust)
 import GHC.Generics (Generic)
 import qualified Data.Text as T
-import Data.Text ( Text, pack, unpack, splitOn, breakOn, intercalate)
+import Data.Text ( Text, pack, unpack, splitOn, breakOn, intercalate, toTitle)
 import Control.Monad (when, unless, forM, forM_)
-import Data.Char (isSpace, isAlphaNum, isDigit)
+import Data.Char (isSpace, isAlphaNum, isDigit, toUpper, toLower)
 import Database.PostgreSQL.Simple.Types ( Query(Query))
 import Database.PostgreSQL.Simple.ToField (toField)
 import Database.PostgreSQL.Simple
@@ -24,7 +25,7 @@ import qualified Data.ByteString as B
 import System.IO.Unsafe (unsafePerformIO)
 
 import System.Directory ( doesFileExist, listDirectory, createDirectory,
-                          removeDirectoryRecursive, doesPathExist )
+                          removeDirectoryRecursive, doesPathExist, doesDirectoryExist )
 
 -- CONSTANTS
 ------------
@@ -73,7 +74,7 @@ resetDB = do c <- webc
 
 -- Data structures
 ------------------
-
+data FileType = Tex | Md deriving (Show, Eq, Ord, Read, Generic)
 data TagType = Kris | Def | Prop | Exercise | Example | Default
              deriving (Show, Eq, Ord, Read, Generic)
 data Comment = Comment {email::Text, tstamp::Text, body::Text}
@@ -81,8 +82,9 @@ data Comment = Comment {email::Text, tstamp::Text, body::Text}
 data MData = MData {title::Text, tag::TagType, uid::Text}
                 deriving (Show, Eq, Ord, Generic)
 data Section = Sections {mdata::MData, children::[Section], comments::[Comment]}
-            | Content Text deriving (Show, Eq, Ord, Generic)
+            | Content FileType Text deriving (Show, Eq, Ord, Generic)
 
+instance Hashable FileType
 instance Hashable TagType
 instance Hashable Comment
 instance Hashable MData
@@ -152,7 +154,11 @@ loadDirElement :: [Text]->FilePath -> String -> IO Section
 loadDirElement ign fp s = do bool <- doesFileExist pth
                              if' bool loadTxt (loadDir ign) pth
   where pth = fp <> "/" <> s
-        loadTxt = fmap (Content . pack) . readFile
+        extension = unpack . toTitle <$> splitOn "." (pack s)
+        ft = case readMaybe $ last extension of
+          Just x -> x
+          _ -> error $ show (fp, s)
+        loadTxt = fmap (Content ft . pack) . readFile
 
 -- Writing to filesystem
 --------------------------------
@@ -165,7 +171,8 @@ writeSection s@(Sections md ss cm) fp = do
     forM_ (zip [1..] ss) f
   where dname = unpack $ strip $ title md
         newdir = fp <> dname <> "/"
-        f (i, Content n) = writeFile (newdir <> show i <> "Content.tex") $ unpack n
+        f (i, Content ft n) = writeFile (concat [newdir, show i, "Content.",
+                                                toLower <$> show ft]) $ unpack n
         f (i, s) = writeSection s (newdir <> show i)
 writeSection _ _ = error ""
 
@@ -199,12 +206,12 @@ contentToDB c contId (isHead, ord, txt) = do
 
 -- Add Section to DB
 toDB' :: Connection -> Section -> IO ()
-toDB' c s@(Content n) = do
+toDB' c s@(Content ft n) = do
     bn <- checkId c (hash n) "contents"
-    unless bn $ execute c cq [hash n, hash s] >> pure ()
+    unless bn $ execute c cq (hash n, hash s, show ft) >> pure ()
     sequence_ $ contentToDB c (hash n) <$> contentArgs
   where contentArgs = zip3 ((==1) <$> [1..]) [1..] (splitOn "\\ref" n)
-        cq = "INSERT INTO contents (id, sect) VALUES (?,?)"
+        cq = "INSERT INTO contents (id, sect, filetype) VALUES (?,?,?)"
 
 toDB' c s@(Sections m ss cmt) = do
     n <- query_ c "SELECT COUNT(1) FROM section" :: IO [[Int]]
@@ -259,11 +266,11 @@ contentFromDB c contID = do
 -- Assuming int is ID of a section that is content, get the text
 contentsFromDB :: Connection -> Int -> IO Section
 contentsFromDB c sectID = do
-    [[contID]] <- query c qc [sectID] :: IO [[Int]]
+    [(ft, contID)] <- query c qc [sectID] :: IO [(String,Int)]
     xs <- fmap head <$> q contID
     ys <- sequence $ contentFromDB c <$> xs
-    return $ Content $ T.concat ys
-  where qc = "SELECT id FROM contents WHERE sect=?"
+    return $ Content (read ft) $ T.concat ys
+  where qc = "SELECT filetype, id FROM contents WHERE sect=?"
         q i = query c "SELECT id FROM content WHERE cont=? ORDER BY ord" [i]
 -- Get section with ID i
 fromDB' :: Connection -> Int -> IO Section

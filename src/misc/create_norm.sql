@@ -33,6 +33,7 @@ CREATE TABLE sections (
 
 CREATE TABLE contents (
     id BIGINT PRIMARY KEY,
+    filetype TEXT NOT NULL,
 	sect BIGINT NOT NULL REFERENCES section(id) ON DELETE CASCADE
 );
 

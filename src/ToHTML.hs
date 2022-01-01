@@ -137,7 +137,8 @@ initialHTML c fp s = do
   writeFile tmplua $ unpack $ l1 <> pack fp <> l2
   createDirectoryIfMissing True tmpdir
   let texpth = tmpdir <> "/test.tex"
-  writeFile texpth $ unpack $ toLatex s Nothing
+  lat <- toLatex s Nothing
+  writeFile texpth $ unpack lat
   system $ "pandoc -f latex -t html --toc --quiet --mathjax --citeproc \
   \--bibliography=bib/my.bib --csl=bib/ieee.csl --from latex+raw_tex \
   \--lua-filter='"<> tmplua <> "' -s -o '" <> tmpdir <> "/test.html'    '"<>texpth <> "'"

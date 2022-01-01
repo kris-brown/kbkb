@@ -1,0 +1,1 @@
+Can be opened and closed.
